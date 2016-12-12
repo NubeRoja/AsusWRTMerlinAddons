@@ -1,6 +1,6 @@
 #!/opt/bin/bash
 echo "[ -f /opt/bin/bash ] && exec /opt/bin/bash" >> /jffs/configs/profile.add
-cp dot_bashrc dot_bash_profile dot_inputrc /jffs/
+cp dot_bashrc dot_bash_profile dot_inputrc dot_gitconfig /jffs/
 
 FILE="/jffs/scripts/init-start"
 ROOT="/tmp/home/root"
@@ -12,6 +12,7 @@ mkdir /mnt/RemoteBackupMount
 touch /mnt/RemoteBackupMount/unmounted
 echo 'agent007:/Backups /mnt/RemoteBackupMount nfs defaults,noauto' >> /etc/fstab
 # Add Bash-profile stuff
+ln -s /jffs/dot_gitconfig $ROOT/.gitconfig
 ln -s /jffs/dot_bashrc $ROOT/.bashrc
 ln -s /jffs/dot_bash_profile $ROOT/.bash_profile
 ln -s /jffs/dot_inputrc $ROOT/.inputrc
