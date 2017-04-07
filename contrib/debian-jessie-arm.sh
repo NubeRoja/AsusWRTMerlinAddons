@@ -103,7 +103,7 @@ status() {
 	fi
 }
 
-case "$1" in
+case "\$1" in
 	start)
 		start
 		;;
