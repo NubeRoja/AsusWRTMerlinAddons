@@ -14,7 +14,7 @@ echo -e "$INFO but is entirely based on this excellent web page created by TeHas
 echo -e "$INFO https://www.hqt.ro/how-to-install-debian-jessie-arm/"
 echo -e "$INFO with some tricks added by NubeRoja"
 echo -e "$WARNING This scripts depends on a previous installation of entware-ng or optware-ng"
-cd /opt || echo -e "$ERROR entware-ng or optware-ng not installed. Exiting" && exit 1
+cd /opt || ( echo -e "$ERROR entware-ng or optware-ng not installed. Exiting" && exit 1 )
 wget -c -O debian_jessie8.6-arm_clean.tgz http://goo.gl/Yp7CwA
 tar -xvzf ./debian_jessie8.6-arm_clean.tgz
 
