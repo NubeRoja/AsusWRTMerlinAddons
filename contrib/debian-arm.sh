@@ -158,6 +158,7 @@ while : ; do
 			;;
 		n|N)
 			exit 0
+			;;
 		*)
 			echo "Type y to update debian and finish installation"
 			echo "Type n to finish installation without update"
