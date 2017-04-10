@@ -153,8 +153,6 @@ while : ; do
 		y|Y)
 			echo -e "$INFO Starting debian"
 			debian start
-			echo -e "uprrading debian, please wait"
-			chroot \$CHROOT_DIR apt update && apt upgrade -y
 			break
 			;;
 		n|N)
@@ -168,4 +166,7 @@ while : ; do
 			;;
 	esac
 done
+echo -e "upgrading debian, please wait"
+chroot $CHROOT_DIR apt update
+chroot $CHROOT_DIR apt upgrade -y
 exit 0
