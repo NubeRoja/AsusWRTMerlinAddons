@@ -155,6 +155,7 @@ while : ; do
 			debian start
 			echo -e "uprrading debian, please wait"
 			chroot \$CHROOT_DIR apt update && apt upgrade -y
+			break
 			;;
 		n|N)
 			exit 0
