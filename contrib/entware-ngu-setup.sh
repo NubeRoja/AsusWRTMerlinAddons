@@ -147,61 +147,18 @@ tar -czf $entPartition/jffs_scripts_backup_"$(date +'%F_%H-%M')".tgz
 /jffs/scripts/* >/dev/nul
 
 echo -e "$INFO Modifying start scripts..."
-cat > /jffs/scripts/services-start << EOF
-#!/bin/sh
-
-RC='/opt/etc/init.d/rc.unslung'
-
-i=30
-until [ -x "\$RC" ] ; do
-        i=\$((\$i-1))
-        if [ "\$i" -lt 1 ] ; then
-                logger "Could not start Entware-NG"
-                exit
-        fi
-        sleep 5
-done
-\$RC start
-EOF
-chmod +x /jffs/scripts/services-start
-
-cat > /jffs/scripts/services-stop << EOF
-#!/bin/sh
-
-/opt/etc/init.d/rc.unslung stop
-EOF
-
-chmod +x /jffs/scripts/services-stop
-
-cat > /jffs/scripts/services-check << EOF
-#!/bin/sh
-
-/opt/etc/init.d/rc.unslung check
-EOF
-
-chmod +x /jffs/scripts/services-check
-
-cat > /jffs/scripts/post-mount << EOF
-#!/bin/sh
-TAG=\$(basename "\$0")_\$@
-
-if [ "\$1" = "$entPartition" ] ; then
-        ln -nsf \$1/$ENTNG_FOLD /tmp/opt
-        logger -t \$TAG "Created entware-ng symlink"
-        if [ -f /opt/swap ]; then
-                logger -t \$TAG "Mounting swap file..."
-                swapon /opt/swap
-        fi
-fi
-EOF
-
-chmod +x /jffs/scripts/post-mount
-
+# ------------------------------------------
+# pre-mount
+# ------------------------------------------
 cat > /jffs/scripts/pre-mount << EOF
 #!/bin/sh
-
+#
+#/jffs/scritps/pre-mount
+# first argument is the device to be mounted (e.g. /dev/sda1)
+#
+# Mount swap partition & auto-check filesystems before mount it
 TAG=\$(basename "\$0")_\$@
-FSTYPE=\$(fdisk -l "${1:0:8}" | grep "$1" | cut -c55-65)
+FSTYPE=\$(fdisk -l "\${1:0:8}" | grep "\$1" | cut -c55-65)
 
 case "\$FSTYPE" in
         "Linux")
@@ -216,15 +173,62 @@ case "\$FSTYPE" in
                 logger -t \$TAG "Checking ntfs filesystem"
                 LOG=\$(ntfsck -a \$1)
                 ;;
+        "Win95* | FAT*")
+                LOG=\$(fatfsck -a \$1)
+                ;;
         *)
-                logger -t \$TAG "Unknow filesystem. Trying to check as ntfs filesystem"
-                LOG=\$(ntfsck -a \$1)
+                LOG="Unknow filesystem type $FSTYPE on \$1. No filesystem check run."
                 ;;
 esac
 logger -t \$TAG \$LOG
 EOF
 
 chmod +x /jffs/scripts/pre-mount
+
+# ------------------------------------------
+# post-mount
+# ------------------------------------------
+cat > /jffs/scripts/post-mount << EOF
+#!/bin/sh
+#
+#/jffs/scritps/post-mount
+# first argument is the partition mounted (e.g. /tmp/mnt/disklabel/)
+#
+# If partition is the entware volume
+#       Create /opt symlink if the partition
+#       Mount swap file if exits in entware volume
+#       Start Entware services
+TAG=\$(basename "\$0")_\$@
+
+if [ "\$1" = "$entPartition" ] ; then
+        ln -nsf \$1/$ENTNG_FOLD /tmp/opt && logger -t \$TAG "Created entware-ng symlink"
+        [ -f /opt/swap ] && swapon /opt/swap && logger -t \$TAG "Mounted swap file..."
+        logger -t \$TAG "Running rc.unslung to start Entware services ..."
+        /opt/etc/init.d/rc.unslung start
+fi
+EOF
+
+chmod +x /jffs/scripts/post-mount
+
+# ------------------------------------------
+# unmount
+# ------------------------------------------
+cat > /jffs/scripts/unmount << EOF
+#!/bin/sh
+#
+# /jffs/scripts/unmount
+#
+# If partition is the entware volume
+#       Stop entware services
+#       Unmount swap file prior to attempting to unmount the "entware volume"
+OPT=\$(dirname \$(readlink /tmp/opt))
+if [ "\$1" == "\$OPT" ] ; then
+        /opt/etc/init.d/rc.unslung stop
+        [ -f /opt/swap ] && swapoff /opt/swap && logger -t \$TAG "Unmounting swap file..."
+fi
+EOF
+
+chmod +x /jffs/scripts/unmount
 
 if [ "$(nvram get jffs2_scripts)" != "1" ] ; then
         echo -e "$INFO Enabling custom scripts and configs from /jffs..."
@@ -289,19 +293,19 @@ export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin$PATH
 
 case "\$1" in
         start)
-                sh /jffs/scripts/services-start
+                /opt/etc/init.d/rc.unslung start
                 ;;
         stop)
-                sh /jffs/scripts/services-stop
+                /opt/etc/init.d/rc.unslung stop
                 ;;
         restart)
-                sh /jffs/scripts/services-stop
+                /opt/etc/init.d/rc.unslung stop
                 echo -e Restarting Entware-NG Installed Services...
                 sleep 2
-                sh /jffs/scripts/services-start
+                /opt/etc/init.d/rc.unslung start
                 ;;
         check)
-                sh /jffs/scripts/services-check
+                /opt/etc/init.d/rc.unslung check
                 ;;
         *)
                 echo "Usage: services {start|stop|restart|check}" >&2
