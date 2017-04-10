@@ -4,9 +4,9 @@ export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
 
 BOLD="\033[1m"
 NORM="\033[0m"
-INFO="$BOLD Info: $NORM"
-ERROR="$BOLD *** Error: $NORM"
-WARNING="$BOLD * Warning: $NORM"
+INFO="${BOLD}Info: $NORM"
+ERROR="${BOLD}*** Error: $NORM"
+WARNING="${BOLD}* Warning: $NORM"
 
 echo -e "$INFO This script was created by NubeRoja."
 echo -e "$INFO but is entirely based on this excellent web page created by TeHashX:"
@@ -145,20 +145,22 @@ sed -i -e 's/# alias l/alias l/' /opt/debian/root/.bashrc
 
 while : ; do
 	clear
+	echo "-----------------------------------------------------------------------"
 	echo -e "$INFO Setup complete. debian $(debian)"
-	echo "--------------------------------------------------"
+	echo "-----------------------------------------------------------------------"
 	echo -n "Want to updrade debian packages? [ y / n ]: "
 	read choice
 	case $choice in
 		y|Y)
-			echo -e "$INFO Starting debian"
-			debian start
-			break
+			chroot /opt/debian/ apt update
+			chroot /opt/debian/ apt upgrade -y
+			exit 0
 			;;
 		n|N)
 			exit 0
 			;;
 		*)
+			echo
 			echo "Type y to update debian and finish installation"
 			echo "Type n to finish installation without update"
 			echo "Press Enter key to continue"
@@ -166,7 +168,4 @@ while : ; do
 			;;
 	esac
 done
-echo -e "upgrading debian, please wait"
-chroot $CHROOT_DIR apt update
-chroot $CHROOT_DIR apt upgrade -y
-exit 0
+
