@@ -18,14 +18,15 @@ cd /opt || ( echo -e "$ERROR entware-ng or optware-ng not installed. Exiting" &&
 wget -c -O debian_jessie8.6-arm_clean.tgz http://goo.gl/Yp7CwA
 tar -xvzf ./debian_jessie8.6-arm_clean.tgz
 
-ROOT_DIR=$(readlink -f /opt)
 echo -e "$INFO Creating debian init.d script"
 cat > /opt/etc/init.d/S99debian << EOF
 #!/bin/sh
 
 PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
 
-CHROOT_DIR=$ROOT_DIR
+CHROOT_DIR=$(readlink -f /opt)/debian
+RUNNING=$(mount | grep -q "$CHROOT_DIR" && echo true || echo false)
+
 # EXT_DIR=/tmp/mnt/LaCie/Media/
 CHROOT_SERVICES_LIST=/opt/etc/chroot-services.list
 if [ ! -e "\$CHROOT_SERVICES_LIST" ]; then
@@ -34,10 +35,8 @@ if [ ! -e "\$CHROOT_SERVICES_LIST" ]; then
 	exit 1
 fi
 
-mount | grep -q "\$CHROOT_DIR"
-debianrunning=\$?
 start() {
-	if \$debianrunning; then
+	if \$RUNNING; then
 		echo "Chroot'ed services seems to be already started, exiting..."
 		exit 1
 	fi
@@ -46,21 +45,22 @@ start() {
 		mount -o bind /\$dir \$CHROOT_DIR/\$dir
 	done
 	[ -z "\$EXT_DIR" ] || mount -o bind $EXT_DIR \$CHROOT_DIR/mnt
-	for item in \$(cat "\$CHROOT_SERVICES_LIST"); do
-		chroot \$CHROOT_DIR /etc/init.d/\$item start
-	done
+        while IFS= read -r line; do
+                chroot "\$CHROOT_DIR" "/etc/init.d/\$line" start
+		sleep 2
+        done < \$CHROOT_SERVICES_LIST
 }
 	
 stop() {
-	if ! \$debianrunning; then
+	if ! \$RUNNING; then
 		echo "Chroot'ed services seems to be already stopped, exiting..."
 		exit 1
 	fi
 	echo "Stopping chroot'ed Debian services..."
-	for item in \$(cat \$CHROOT_SERVICES_LIST); do
-		chroot \$CHROOT_DIR /etc/init.d/\$item stop
+        while IFS= read -r line; do
+                chroot "$CHROOT_DIR" "/etc/init.d/$line" stop
 		sleep 2
-	done
+        done < $CHROOT_SERVICES_LIST
 	mount | grep \$CHROOT_DIR | awk '{print \$3}' | xargs umount -l
 }
 	
@@ -70,19 +70,20 @@ restart() {
 		start
 	else
 		echo "Stopping chroot'ed Debian services..."
-	        for item in \$(cat \$CHROOT_SERVICES_LIST); do
-		        chroot \$CHROOT_DIR /etc/init.d/\$item stop
-		        sleep 2
-	        done
+		while IFS= read -r line; do
+			chroot "$CHROOT_DIR" "/etc/init.d/$line" stop
+			sleep 2
+		done < $CHROOT_SERVICES_LIST
 	        mount | grep \$CHROOT_DIR | awk '{print \$3}' | xargs umount -l
 		echo "Restarting chroot'ed Debian services..."
 	        for dir in dev proc sys; do
 		        mount -o bind /\$dir \$CHROOT_DIR/\$dir
 	        done
 	        [ -z "\$EXT_DIR" ] || mount -o bind \$EXT_DIR \$CHROOT_DIR/mnt
-	        for item in \$(cat $CHROOT_SERVICES_LIST); do
-		        chroot \$CHROOT_DIR /etc/init.d/\$item start
-	        done
+		while IFS= read -r line; do
+			chroot "\$CHROOT_DIR" "/etc/init.d/\$line" start
+			sleep 2
+		done < \$CHROOT_SERVICES_LIST
 	fi
 }	
 
@@ -96,7 +97,7 @@ enter() {
 }
 
 status() {
-	if \$debianrunning; then
+	if \$RUNNING; then
 		echo "Chroot'ed services running..."
 	else
 		echo "Chroot'ed services not running!"
@@ -116,7 +117,8 @@ case "\$1" in
 	enter)
 		enter
 		;;	
-	status) status
+	status)
+		status
 		;;
 	*)
 		echo "Usage: (start|stop|restart|enter|status)"
