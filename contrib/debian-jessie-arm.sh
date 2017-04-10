@@ -24,8 +24,8 @@ cat > /opt/etc/init.d/S99debian << EOF
 
 PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
 
-CHROOT_DIR=$(readlink -f /opt)/debian
-RUNNING=$(mount | grep -q "$CHROOT_DIR" && echo true || echo false)
+CHROOT_DIR=\$(readlink -f /opt)/debian
+RUNNING=\$(mount | grep -q "\$CHROOT_DIR" && echo true || echo false)
 
 # EXT_DIR=/tmp/mnt/LaCie/Media/
 CHROOT_SERVICES_LIST=/opt/etc/chroot-services.list
