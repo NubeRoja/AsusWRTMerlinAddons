@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin$PATH
+export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
 
 BOLD="\033[1m"
 NORM="\033[0m"
