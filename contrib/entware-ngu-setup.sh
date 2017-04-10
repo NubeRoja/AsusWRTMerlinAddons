@@ -185,7 +185,7 @@ cat > /jffs/scripts/unmount << EOF
 OPT=\$(dirname \$(readlink /tmp/opt))
 TAG=\$(basename "\$0")_\$@
 if [ "\$1" == "\$OPT" ] ; then
-        services stop
+        sh /opt/etc/init.d/rc.unslung stop
         [ -f /opt/swap ] && swapoff /opt/swap && logger -t \$TAG "Unmounting swap file..."
 	[ -d /opt/debian ] && debian stop
 fi
