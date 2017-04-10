@@ -46,7 +46,7 @@ start() {
 	done
 	[ -z "\$EXT_DIR" ] || mount -o bind \$EXT_DIR \$CHROOT_DIR/mnt
 	while IFS= read -r line; do
-    chroot "\$CHROOT_DIR" "/etc/init.d/\$line" start
+		chroot "\$CHROOT_DIR" "/etc/init.d/\$line" start
 		sleep 2
 	done < \$CHROOT_SERVICES_LIST
 }
@@ -150,7 +150,7 @@ while : ; do
 	echo -n "Want to updrade debian packages? [ y / n ]: "
 	read choice
 	case $choice in
-  	y|Y)
+		y|Y)
 			echo -e "$INFO Starting debian"
 			debian start
 			echo -e "
