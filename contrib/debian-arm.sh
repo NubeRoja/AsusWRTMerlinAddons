@@ -153,7 +153,7 @@ while : ; do
 		y|Y)
 			echo -e "$INFO Starting debian"
 			debian start
-			echo -e "
+			echo -e "uprrading debian, please wait"
 			chroot \$CHROOT_DIR apt update && apt upgrade -y
 			;;
 		n|N)
