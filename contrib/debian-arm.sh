@@ -141,11 +141,7 @@ sed -i -e 's/# es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /opt/debian/etc/locale.gen
 sed -i -e 's/# eval \"`dircolors`\"/eval \"`dircolors`\"/' /opt/debian/root/.bashrc
 sed -i -e 's/# alias l/alias l/' /opt/debian/root/.bashrc
 
-echo -e "$INFO Setup complete"
-echo -e "$INFO Debian $(debian)"
-
-debian enter
-apt update && apt upgrade -y
-dpkg-reconfigure -f noninteractive tzdata
-dpkg-reconfigure locales
+echo -e "$INFO Setup complete. debian $(debian)"
+echo -e "$INFO Please execute debian enter"
+echo -e "$INFO apt update && apt upgrade -y
 exit
