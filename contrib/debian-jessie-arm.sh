@@ -92,6 +92,7 @@ enter() {
 	mount -o bind /dev/pts /opt/debian/dev/pts
 	mount -o bind /proc/ /opt/debian/proc/
 	mount -o bind /sys/ /opt/debian/sys/
+	clear
 	chroot /opt/debian /bin/bash
 }
 
@@ -132,4 +133,15 @@ chmod 755 /opt/etc/init.d/S99debian
 touch /opt/etc/chroot-services.list
 ln -s /opt/etc/init.d/S99debian /opt/bin/debian
 
+# Configure locales and timezone
+echo "Europe/Madrid" > /opt/debian/etc/timezone
+sed -i -e 's/# es_ES.UTF-8 UTF-8/es_ES.UTF-8 UTF-8/' /opt/debian/etc/locale.gen
+
+# Configure bash ls colorized
+sed -i -e 's/# eval \"`dircolors`\"/eval \"`dircolors`\"/' /opt/debian/root/.bashrc
+sed -i -e 's/# alias l/alias l/' /opt/debian/root/.bashrc
+
 debian enter
+apt update && apt upgrade -y
+dpkg-reconfigure -f noninteractive tzdata
+dpkg-reconfigure locales
