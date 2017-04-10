@@ -4,28 +4,28 @@ export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin$PATH
 
 BOLD="\033[1m"
 NORM="\033[0m"
-INFO="$BOLD Info: $NORM"
-ERROR="$BOLD *** Error: $NORM"
-WARNING="$BOLD * Warning: $NORM"
-INPUT="$BOLD => $NORM"
+INFO="${BOLD}Info: $NORM"
+ERROR="${BOLD}*** Error: $NORM"
+WARNING="${BOLD}* Warning: $NORM"
+INPUT="${BOLD}=> $NORM"
 
 backup() {
-        echo -e "$WARNING Found previous $2 installation, saving..."
-        backupdir="$1"-bak_"$(date +'%F_%H-%M')"
-        mv "$1" "$backupdir"
-        echo -e "$INFO Backup of $1 created in $backupdir"
-        sleep 2
+	echo -e "$WARNING Found previous $2 installation, saving..."
+	backupdir="$1"-bak_"$(date +'%F_%H-%M')"
+	mv "$1" "$backupdir"
+	echo -e "$INFO Backup of $1 created in $backupdir"
+	sleep 2
 }
 
 swapfile() {
-        echo -e "$INFO Creating a $1 MB swap file..."
-        echo -e "$INFO This could take a while, be patient..."
-        dd if=/dev/zero of=/opt/swap bs=1024 count=$((1024*$1))
-        mkswap /opt/swap
-        chmod 0600 /opt/swap
-        swapon /opt/swap
-        echo -n "Press [Enter] key to continue..."
-        read readEnterKey
+	echo -e "$INFO Creating a $1 MB swap file..."
+	echo -e "$INFO This could take a while, be patient..."
+	dd if=/dev/zero of=/opt/swap bs=1024 count=$((1024*$1))
+	mkswap /opt/swap
+	chmod 0600 /opt/swap
+	swapon /opt/swap
+	echo -n "Press [Enter] key to continue..."
+	read readEnterKey
 }
 
 cd /tmp || exit 0
@@ -44,58 +44,51 @@ echo -e "$INFO like /tmp/mnt/sda1/jffs_scripts_backup.tgz"
 echo
 
 if [ ! -d /jffs/scripts ] ; then
-        echo -e "$ERROR Please \"Enable JFFS partition\" from \"Administration > System\""
-        echo -e "$ERROR from router web UI: www.asusrouter.com/Advanced_System_Content.asp"
-        echo -e "$ERROR then reboot router and try again. Exiting..."
-        exit 1
+	echo -e "$ERROR Please \"Enable JFFS partition\" from \"Administration > System\""
+	echo -e "$ERROR from router web UI: www.asusrouter.com/Advanced_System_Content.asp"
+	echo -e "$ERROR then reboot router and try again. Exiting..."
+	exit 1
 fi
 
 case $(uname -m) in
-        armv7l)
-                PART_TYPES='ext2|ext3|ext4'
-                INST_URL='http://pkg.entware.net/binaries/armv7/installer/entware_install.sh'
-                ENT_FOLD='entware.arm'
-                ENTNG_FOLD='entware-ng.arm'
-                OPT_FOLD='asusware.arm'
-                OPTNG_FOLD='optware-ng.arm'
-                ;;
-        mips)
-                PART_TYPES='ext2|ext3'
-                INST_URL='http://pkg.entware.net/binaries/mipsel/installer/installer.sh'
-                ENT_FOLD='entware'
-                ENTNG_FOLD='entware-ng'
-                OPT_FOLD='asusware'
-                OPTNG_FOLD='optware-ng'
-                ;;
-        *)
-                echo "This is unsupported platform, sorry."
-                ;;
+	armv7l)
+		PART_TYPES='ext2|ext3|ext4'
+		INST_URL='http://pkg.entware.net/binaries/armv7/installer/entware_install.sh'
+		ENT_FOLD='entware.arm'
+		ENTNG_FOLD='entware-ng.arm'
+		OPT_FOLD='asusware.arm'
+		OPTNG_FOLD='optware-ng.arm'
+		;;
+	mips)
+		PART_TYPES='ext2|ext3'
+		INST_URL='http://pkg.entware.net/binaries/mipsel/installer/installer.sh'
+		ENT_FOLD='entware'
+		ENTNG_FOLD='entware-ng'
+		OPT_FOLD='asusware'
+		OPTNG_FOLD='optware-ng'
+		;;
+	*)
+		echo "This is unsupported platform, sorry."
+		;;
 esac
 
 i=1 # Will count available partitions (+ 1)
 echo -e "$INFO Looking for available partitions..."
 for mounted in $(/bin/mount | grep -E "$PART_TYPES" | cut -d" " -f3) ; do
-        echo "[$i] --> $mounted"
-        eval mounts$i="$mounted"
-        i=$((i+1))
+	echo "[$i] --> $mounted"
+	eval mounts$i="$mounted"
+	i=$((i+1))
 done
 
 if [ "$i" = "1" ] ; then
-        echo -e "$ERROR No $PART_TYPES partitions available. Exiting..."
-        exit 1
+	echo -e "$ERROR No $PART_TYPES partitions available. Exiting..."
+	exit 1
 fi
 
 echo -en "$INPUT Please enter partition number or 0 to exit\n$BOLD[0-$((i-1))]$NORM: "
 read partitionNumber
-if [ "$partitionNumber" = "0" ] ; then
-        echo -e "$INFO Exiting..."
-        exit 0
-fi
-
-if [ "$partitionNumber" -gt $((i-1)) ] ; then
-        echo -e "$ERROR Invalid partition number! Exiting..."
-        exit 1
-fi
+[ "$partitionNumber" = "0" ] && echo -e "$INFO Exiting..." && exit 0
+[ "$partitionNumber" -gt $((i-1)) ] && echo -e "$ERROR Invalid partition number! Exiting..." && exit 1
 
 entPartition=""
 eval entPartition=\$mounts"$partitionNumber"
@@ -105,126 +98,100 @@ entFolder=$entPartition/$ENTNG_FOLD
 asuswareFolder=$entPartition/$OPT_FOLD
 optwareFolder=$entPartition/$OPTNG_FOLD
 
-if [ -d /opt/debian ]; then
-        echo -e "$WARNING Found chrooted-debian installation, stopping debian..."
-        debian stop
-fi
-
-if [ -f /jffs/scripts/services-stop ]; then
-        echo -e "$WARNING stopping running services..."
-        /jffs/scripts/services-stop
-fi
-
-if [ -d $entwareFolder ]; then
-        backup $entwareFolder $ENT_FOLD
-fi
-
-if [ -d $entFolder ]; then
-        backup $entFolder $ENTNG_FOLD
-fi
-
-if [ -d $asuswareFolder ]; then
-        backup $asuswareFolder $OPT_FOLD
-fi
-
-if [ -d $optwareFolder ]; then
-        backup $optwareFolder $OPTNG_FOLD
-fi
+[ -f /opt/etc/init.d/rc.unslung ] && echo -e "$WARNING stopping running services..." && /opt/etc/init.d/rc.unslung stop
+[ -d /opt/debian ] && echo -e "$WARNING Found chrooted-debian installation, stopping debian..." && debian stop
+[ -d $entwareFolder ] && backup $entwareFolder $ENT_FOLD
+[ -d $entFolder ] && backup $entFolder $ENTNG_FOLD
+[ -d $asuswareFolder ] && backup $asuswareFolder $OPT_FOLD
+[ -d $optwareFolder ] && backup $optwareFolder $OPTNG_FOLD
 
 echo -e "$INFO Creating $entFolder folder..."
 mkdir $entFolder
 
-if [ -d /tmp/opt ]; then
-        echo -e "$WARNING Deleting old /tmp/opt symlink..."
-        rm /tmp/opt
+[ -d /tmp/opt ] && echo -e "$WARNING Refreshing old /tmp/opt symlink..."
+ln -sf $entFolder /tmp/opt && echo -e "$INFO Created /tmp/opt symlink..."
+
+if [ -d /jffs/scripts ]; then
+	echo -e "$INFO Creating /jffs scripts backup..."
+	tar -czf $entPartition/jffs_scripts_backup_"$(date +'%F_%H-%M')".tgz /jffs/scripts/* >/dev/nul
 fi
 
-echo -e "$INFO Creating /tmp/opt symlink..."
-ln -sf $entFolder /tmp/opt
-
-echo -e "$INFO Creating /jffs scripts backup..."
-tar -czf $entPartition/jffs_scripts_backup_"$(date +'%F_%H-%M')".tgz
-/jffs/scripts/* >/dev/nul
-
-echo -e "$INFO Modifying start scripts..."
-cat > /jffs/scripts/services-start << EOF
-#!/bin/sh
-
-RC='/opt/etc/init.d/rc.unslung'
-
-i=30
-until [ -x "\$RC" ] ; do
-        i=\$((\$i-1))
-        if [ "\$i" -lt 1 ] ; then
-                logger "Could not start Entware-NG"
-                exit
-        fi
-        sleep 5
-done
-\$RC start
-EOF
-chmod +x /jffs/scripts/services-start
-
-cat > /jffs/scripts/services-stop << EOF
-#!/bin/sh
-
-/opt/etc/init.d/rc.unslung stop
-EOF
-
-chmod +x /jffs/scripts/services-stop
-
-cat > /jffs/scripts/services-check << EOF
-#!/bin/sh
-
-/opt/etc/init.d/rc.unslung check
-EOF
-
-chmod +x /jffs/scripts/services-check
-
-cat > /jffs/scripts/post-mount << EOF
-#!/bin/sh
-TAG=\$(basename "\$0")_\$@
-
-if [ "\$1" = "$entPartition" ] ; then
-        ln -nsf \$1/$ENTNG_FOLD /tmp/opt
-        logger -t \$TAG "Created entware-ng symlink"
-        if [ -f /opt/swap ]; then
-                logger -t \$TAG "Mounting swap file..."
-                swapon /opt/swap
-        fi
-fi
-EOF
-
-chmod +x /jffs/scripts/post-mount
-
+echo -e "$INFO Creating new /jffs scripts..."
+# premount
 cat > /jffs/scripts/pre-mount << EOF
 #!/bin/sh
-
+# /jffs/scripts/pre-mount
+# first argument is the device to be mounted (e.g. /dev/sda1/)
+# Check filesystem or mount swap partition
 TAG=\$(basename "\$0")_\$@
-FSTYPE=\$(fdisk -l "${1:0:8}" | grep "$1" | cut -c55-65)
+FSTYPE=\$(fdisk -l "\${1:0:8}" | grep "\$1" | cut -c55-65)
 
 case "\$FSTYPE" in
-        "Linux")
-                logger -t \$TAG "Checking linux filesystem"
-                LOG=\$(e2fsck -p \$1)
-                ;;
-        "Linux swap")
-                logger -t \$TAG "Mounting swap partition"
-                swapon \$1 && LOG="Swap partition mounted" || LOG="Device busy. Already mounted?"
-                ;;
-        "HPFS/NTFS")
-                logger -t \$TAG "Checking ntfs filesystem"
-                LOG=\$(ntfsck -a \$1)
-                ;;
-        *)
-                logger -t \$TAG "Unknow filesystem. Trying to check as ntfs filesystem"
-                LOG=\$(ntfsck -a \$1)
-                ;;
+	"Linux")
+		logger -t \$TAG "Checking \$FSTYPE filesystem"
+		LOG=\$(e2fsck -p \$1)
+		;;
+	"Linux swap")
+		logger -t \$TAG "Mounting swap partition"
+		swapon \$1 && LOG="Swap partition mounted" || LOG="Device busy. Already mounted?"
+		;;
+	"HPFS|NTFS")
+		logger -t \$TAG "Checking \$FSTYPE filesystem"
+		LOG=\$(ntfsck -a \$1)
+		;;
+	"Win95*|FAT*")
+		logger -t \$TAG "Checking \$FSTYPE filesystem"
+		LOG=\$(fatfsck -a \$1)
+		;;
+	*)
+		LOG="Unknow filesystem type \$FSTYPE on \$1. No filesystem check available"
+		;;
 esac
 logger -t \$TAG \$LOG
 EOF
 
 chmod +x /jffs/scripts/pre-mount
+
+# post-mount
+cat > /jffs/scripts/post-mount << EOF
+#!/bin/sh
+# /jffs/scripts/post-mount
+# first argument is the partition mounted (e.g. /tmp/mnt/usbdisklabel/)
+# If partition is the entware volume
+#       Create /opt symlink
+#       Mount swap file if exists
+#	Start Entware services
+TAG=\$(basename "\$0")_\$@
+
+if [ "\$1" = "$entPartition" ] ; then
+        ln -nsf \$1/entware-ng.arm /tmp/opt && logger -t \$TAG "Created entware-ng symlink"
+        [ -f /opt/swap ] && swapon /opt/swap && logger -t \$TAG "Mounted swap file..."
+        logger -t \$TAG "Running rc.unslung to start Entware services ..."
+        /opt/etc/init.d/rc.unslung start
+fi
+EOF
+
+chmod +x /jffs/scripts/post-mount
+
+# unmount
+cat > /jffs/scripts/unmount << EOF
+#!/bin/sh
+# /jffs/scripts/unmount
+# first argument is the partition to be unmounted (e.g. /tmp/mnt/usbdisklabel/)
+# If partition is the entware volume
+#       Stop entware services
+#       Unmount swap file if exists
+#	Stop chrooted services if debian exists
+OPT=\$(dirname \$(readlink /tmp/opt))
+TAG=\$(basename "\$0")_\$@
+if [ "\$1" == "\$OPT" ] ; then
+        services stop
+        [ -f /opt/swap ] && swapoff /opt/swap && logger -t \$TAG "Unmounting swap file..."
+	[ -d /opt/debian ] && debian stop
+fi
+EOF
+
+chmod +x /jffs/scripts/unmount
 
 if [ "$(nvram get jffs2_scripts)" != "1" ] ; then
         echo -e "$INFO Enabling custom scripts and configs from /jffs..."
@@ -243,7 +210,7 @@ do
         echo "--------------------------------------------------"
         echo "SWAP FILE CREATION"
         echo "If you have a swap partition,"
-        echo "   the pre-mount script will mount it every reboot"
+        echo "   the pre-mount script will mount it every boot"
         echo "   select 4 for skip SWAP FILE Creation"
         echo "--------------------------------------------------"
         echo "Choose swap file size (Highly Recommended)"
@@ -289,19 +256,19 @@ export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin$PATH
 
 case "\$1" in
         start)
-                sh /jffs/scripts/services-start
+                sh /opt/etc/init.d/rc.unslung start
                 ;;
         stop)
-                sh /jffs/scripts/services-stop
+                sh /opt/etc/init.d/rc.unslung stop
                 ;;
         restart)
-                sh /jffs/scripts/services-stop
+                sh /opt/etc/init.d/rc.unslung stop
                 echo -e Restarting Entware-NG Installed Services...
                 sleep 2
-                sh /jffs/scripts/services-start
+                sh /opt/etc/init.d/rc.unslung start
                 ;;
         check)
-                sh /jffs/scripts/services-check
+                sh /opt/etc/init.d/rc.unslung check
                 ;;
         *)
                 echo "Usage: services {start|stop|restart|check}" >&2
