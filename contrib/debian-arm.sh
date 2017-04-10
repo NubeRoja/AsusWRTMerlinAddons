@@ -116,7 +116,7 @@ case "\$1" in
 	enter)
 		enter
 		;;	
-	status)
+	status|check)
 		status
 		;;
 	*)
@@ -142,6 +142,6 @@ sed -i -e 's/# eval \"`dircolors`\"/eval \"`dircolors`\"/' /opt/debian/root/.bas
 sed -i -e 's/# alias l/alias l/' /opt/debian/root/.bashrc
 
 echo -e "$INFO Setup complete. debian $(debian)"
-echo -e "$INFO Please execute debian enter"
+echo -e "$INFO Please execute debian enter &"
 echo -e "$INFO apt update && apt upgrade -y
 exit
