@@ -144,9 +144,6 @@ case "\$FSTYPE" in
 esac
 logger -t \$TAG \$LOG
 EOF
-
-chmod +x /jffs/scripts/pre-mount
-
 # post-mount
 cat > /jffs/scripts/post-mount << EOF
 #!/bin/sh
@@ -165,9 +162,6 @@ if [ "\$1" = "$entPartition" ]; then
         /opt/etc/init.d/rc.unslung start
 fi
 EOF
-
-chmod +x /jffs/scripts/post-mount
-
 # unmount
 cat > /jffs/scripts/unmount << EOF
 #!/bin/sh
@@ -184,7 +178,46 @@ if [ "\$1" = "\$OPT" ]; then
 fi
 EOF
 
-chmod +x /jffs/scripts/unmount
+chmod +x /jffs/scripts/*
+
+cat > /opt/bin/services << EOF
+#!/bin/sh
+
+export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
+
+case "\$1" in
+        start)
+                sh /opt/etc/init.d/rc.unslung start
+                ;;
+        stop)
+                sh /opt/etc/init.d/rc.unslung stop
+                ;;
+        restart)
+                sh /opt/etc/init.d/rc.unslung stop
+                echo -e Restarting Entware-NG Installed Services...
+                sleep 2
+                sh /opt/etc/init.d/rc.unslung start
+                ;;
+        check)
+                sh /opt/etc/init.d/rc.unslung check
+                ;;
+        *)
+                echo "Usage: services {start|stop|restart|check}" >&2
+                exit 3
+                ;;
+esac
+EOF
+chmod +x /opt/bin/services
+
+# profile.add
+cat > /jffs/configs/profile.add << EOF
+export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w $\[\033[00m\] '
+alias ls='ls --color=yes'
+alias l='ls -lFA --color=yes'
+alias ll='ls -lF --color=yes'
+"\e[1;5C": forward-word   # ctrl + right
+"\e[1;5D": backward-word  # ctrl + left
+EOF
 
 if [ "$(nvram get jffs2_scripts)" != "1" ]; then
         echo -e "$INFO Enabling custom scripts and configs from /jffs..."
@@ -241,36 +274,6 @@ do
                 ;;
         esac
 done
-
-cat > /opt/bin/services << EOF
-#!/bin/sh
-
-export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
-
-case "\$1" in
-        start)
-                sh /opt/etc/init.d/rc.unslung start
-                ;;
-        stop)
-                sh /opt/etc/init.d/rc.unslung stop
-                ;;
-        restart)
-                sh /opt/etc/init.d/rc.unslung stop
-                echo -e Restarting Entware-NG Installed Services...
-                sleep 2
-                sh /opt/etc/init.d/rc.unslung start
-                ;;
-        check)
-                sh /opt/etc/init.d/rc.unslung check
-                ;;
-        *)
-                echo "Usage: services {start|stop|restart|check}" >&2
-                exit 3
-                ;;
-esac
-EOF
-
-chmod +x /opt/bin/services
 
 cat << EOF
 
