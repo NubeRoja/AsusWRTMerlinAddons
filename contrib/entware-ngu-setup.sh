@@ -180,6 +180,25 @@ EOF
 
 chmod +x /jffs/scripts/*
 
+# profile.add
+cat > /jffs/configs/profile.add << EOF
+export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w $\[\033[00m\] '
+alias ls='ls --color=yes'
+alias l='ls -lFA --color=yes'
+alias ll='ls -lF --color=yes'
+"\e[1;5C": forward-word   # ctrl + right
+"\e[1;5D": backward-word  # ctrl + left
+EOF
+
+if [ "$(nvram get jffs2_scripts)" != "1" ]; then
+        echo -e "$INFO Enabling custom scripts and configs from /jffs..."
+        nvram set jffs2_scripts=1
+        nvram commit
+fi
+
+wget -qO - $INST_URL | sh
+opkg install terminfo
+
 cat > /opt/bin/services << EOF
 #!/bin/sh
 
@@ -208,25 +227,6 @@ case "\$1" in
 esac
 EOF
 chmod +x /opt/bin/services
-
-# profile.add
-cat > /jffs/configs/profile.add << EOF
-export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w $\[\033[00m\] '
-alias ls='ls --color=yes'
-alias l='ls -lFA --color=yes'
-alias ll='ls -lF --color=yes'
-"\e[1;5C": forward-word   # ctrl + right
-"\e[1;5D": backward-word  # ctrl + left
-EOF
-
-if [ "$(nvram get jffs2_scripts)" != "1" ]; then
-        echo -e "$INFO Enabling custom scripts and configs from /jffs..."
-        nvram set jffs2_scripts=1
-        nvram commit
-fi
-
-wget -qO - $INST_URL | sh
-opkg install terminfo
 
 # Swap file
 while :
