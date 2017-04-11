@@ -1,5 +1,5 @@
 # Customize asus router
-* In this section the scripts available work without entware or optware installed, they only use firmware binaries
+* In this section the scripts available work without entware or optware installed, they only use firmware binaries and it's configurations files
 
 
 ## post-setup.sh
