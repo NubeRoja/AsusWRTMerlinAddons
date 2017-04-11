@@ -1,25 +1,39 @@
-#!/opt/bin/bash
-echo "[ -f /opt/bin/bash ] && exec /opt/bin/bash" >> /jffs/configs/profile.add
-cp dot_bashrc dot_bash_profile dot_inputrc dot_gitconfig /jffs/
-
-FILE="/jffs/scripts/init-start"
-ROOT="/tmp/home/root"
-
-/bin/cat <<EOF >$FILE
 #!/bin/sh
-# Prepare for backupmounting
-mkdir /mnt/RemoteBackupMount
-touch /mnt/RemoteBackupMount/unmounted
-echo 'agent007:/Backups /mnt/RemoteBackupMount nfs defaults,noauto' >> /etc/fstab
-# Add Bash-profile stuff
-ln -s /jffs/dot_gitconfig $ROOT/.gitconfig
-ln -s /jffs/dot_bashrc $ROOT/.bashrc
-ln -s /jffs/dot_bash_profile $ROOT/.bash_profile
-ln -s /jffs/dot_inputrc $ROOT/.inputrc
-touch /jffs/dot_bash_history
-ln -s /jffs/dot_bash_history $ROOT/.bash_history
-# Add rule for backup every monday (day 1, 05 h)
-# Format is <minute hour day month weekday cmd>
-/usr/sbin/cru a 091875 0 05 '*' '*' 1 /mnt/BackupDisk/bin/backup_script.sh
+cat > /jffs/configs/fstab << EOF
+/jffs/var/www   /www    none    bind    0       0
 EOF
-chmod a+x $FILE
+echo "fstab ok"
+
+cat > /jffs/configs/profile.add << EOF
+export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$\[\033[00m\] '
+alias ls='ls --color=yes'
+alias l='ls -lFA --color=yes'
+alias ll='ls -lF --color=yes'
+alias cd..='cd ..'
+EOF
+echo "profile.add ok"
+
+cat > /jffs/etc/ntp.conf << EOF
+server 1.es.pool.ntp.org
+server 3.europe.pool.ntp.org
+server 2.europe.pool.ntp.org
+EOF
+echo "ntp.conf ok"
+
+cat > /jffs/scripts/services-start << EOF
+#!/bin/sh
+ln -sf /jffs/etc/ntp.conf /tmp/etc/ntp.conf
+if [ \$(nvram get ntp_ready) -eq 1 ]; then
+        ntpd -l else
+        logger -t "\$(basename \$0) \$*" "Cannot get initialise NTP Server!"
+fi
+EOF
+chmod +x /jffs/scripts/services-start
+echo "services-start ok"
+
+cat > /jffs/scripts/dnsmasq.postconf << EOF
+#!/bin/sh
+sed -i "s/ppp1/ppp0/g" \$1
+EOF
+chmod +x /jffs/scripts/dnsmasq.postconf
+echo "dnsmasq.postconf ok"
