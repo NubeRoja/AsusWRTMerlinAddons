@@ -46,7 +46,7 @@ start() {
 	done
 	[ -z "\$EXT_DIR" ] || mount -o bind "\$EXT_DIR" "\$CHROOT_DIR/mnt"
 	while IFS= read -r line; do
-		chroot "\$CHROOT_DIR" "/etc/init.d/\$line" start
+		chroot "\$CHROOT_DIR" "/etc/init.d/\$line" "start"
 		sleep 2
 	done < \$CHROOT_SERVICES_LIST
 }
@@ -58,7 +58,7 @@ stop() {
 	fi
 	echo "Stopping chroot'ed Debian services..."
 	while IFS= read -r line; do
-		chroot "\$CHROOT_DIR" "/etc/init.d/\$line" stop
+		chroot "\$CHROOT_DIR" "/etc/init.d/\$line" "stop"
 		sleep 2
 	done < \$CHROOT_SERVICES_LIST
 	mount | grep "\$CHROOT_DIR" | awk '{print \$3}' | xargs umount -l
@@ -71,7 +71,7 @@ restart() {
 	else
 		echo "Stopping chroot'ed Debian services..."
 		while IFS= read -r line; do
-			chroot "\$CHROOT_DIR" "/etc/init.d/\$line" stop
+			chroot "\$CHROOT_DIR" "/etc/init.d/\$line" "stop"
 			sleep 2
 		done < \$CHROOT_SERVICES_LIST
 		mount | grep "\$CHROOT_DIR" | awk '{print \$3}' | xargs umount -l
@@ -81,7 +81,7 @@ restart() {
 	  done
 	  [ -z "\$EXT_DIR" ] || mount -o bind "\$EXT_DIR" "\$CHROOT_DIR/mnt"
 		while IFS= read -r line; do
-			chroot "\$CHROOT_DIR" "/etc/init.d/\$line" start
+			chroot "\$CHROOT_DIR" "/etc/init.d/\$line" "start"
 			sleep 2
 		done < \$CHROOT_SERVICES_LIST
 	fi
