@@ -118,31 +118,31 @@ cat > /jffs/scripts/pre-mount << EOF
 # /jffs/scripts/pre-mount
 # first argument is the device to be mounted (e.g. /dev/sda1/)
 # Check filesystem or mount swap partition
-TAG=\$(basename "\$0")_\$@
+TAG="\$(basename "\$0") \$*"
 FSTYPE=\$(fdisk -l "\${1:0:8}" | grep "\$1" | cut -c55-65)
 
 case "\$FSTYPE" in
 	"Linux")
-		logger -t \$TAG "Checking \$FSTYPE filesystem"
-		LOG=\$(e2fsck -p \$1)
+		logger -t "\$TAG" "Checking \$FSTYPE filesystem"
+		LOG=\$(e2fsck -p "\$1")
 		;;
 	"Linux swap")
-		logger -t \$TAG "Mounting swap partition"
-		swapon \$1 && LOG="Swap partition mounted" || LOG="Device busy. Already mounted?"
+		logger -t "\$TAG" "Mounting swap partition"
+		swapon "\$1" && LOG="Swap partition mounted" || LOG="Device busy. Already mounted?"
 		;;
 	"HPFS|NTFS")
-		logger -t \$TAG "Checking \$FSTYPE filesystem"
-		LOG=\$(ntfsck -a \$1)
+		logger -t "\$TAG" "Checking \$FSTYPE filesystem"
+		LOG=\$(ntfsck -a "\$1")
 		;;
 	"Win95*|FAT*")
-		logger -t \$TAG "Checking \$FSTYPE filesystem"
-		LOG=\$(fatfsck -a \$1)
+		logger -t "\$TAG" "Checking \$FSTYPE filesystem"
+		LOG=\$(fatfsck -a "\$1")
 		;;
 	*)
 		LOG="Unknow filesystem type \$FSTYPE on \$1. No filesystem check available"
 		;;
 esac
-logger -t \$TAG \$LOG
+logger -t "\$TAG" "\$LOG"
 EOF
 # post-mount
 cat > /jffs/scripts/post-mount << EOF
@@ -153,12 +153,12 @@ cat > /jffs/scripts/post-mount << EOF
 #       Create /opt symlink
 #       Mount swap file if exists
 #	Start Entware services
-TAG=\$(basename "\$0")_\$@
+TAG="\$(basename "\$0") \$*"
 
 if [ "\$1" = "$entPartition" ]; then
-        ln -nsf \$1/entware-ng.arm /tmp/opt && logger -t \$TAG "Created entware-ng symlink"
-        [ -f /opt/swap ] && swapon /opt/swap && logger -t \$TAG "Mounted swap file..."
-        logger -t \$TAG "Running rc.unslung to start Entware services ..."
+        ln -nsf "\$1"/entware-ng.arm /tmp/opt && logger -t "\$TAG" "Created entware-ng symlink"
+        [ -f /opt/swap ] && swapon /opt/swap && logger -t "\$TAG" "Mounted swap file..."
+        logger -t "\$TAG" "Running rc.unslung to start Entware services ..."
         /opt/etc/init.d/rc.unslung start
 fi
 EOF
@@ -170,11 +170,11 @@ cat > /jffs/scripts/unmount << EOF
 # If partition is the entware volume
 #       Stop entware services
 #       Unmount swap file if exists
-OPT=\$(dirname \$(readlink /tmp/opt))
-TAG=\$(basename "\$0")_\$@
+OPT=\$(dirname "\$(readlink /tmp/opt)")
+TAG="\$(basename "\$0") \$*"
 if [ "\$1" = "\$OPT" ]; then
-        sh /opt/etc/init.d/rc.unslung stop
-        [ -f /opt/swap ] && swapoff /opt/swap && logger -t \$TAG "Unmounting swap file..."
+        sh /opt/etc/init.d/rc.unslung stop && logger -t "\$TAG" "Running rc.unslung to stop Entware services ..."
+        [ -f /opt/swap ] && swapoff /opt/swap && logger -t "\$TAG" "Unmounting swap file..."
 fi
 EOF
 
