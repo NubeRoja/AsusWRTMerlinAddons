@@ -11,7 +11,7 @@ Packages and instructions are available at
 ### Notes
 * Entware-install script in "contrib" have been cleaned and modificated. The most important changes are in /jffs/scripts.
 * Instead of using classic services-start and services-stop i preffer pre-mount, post-mount and unmount scripts
-* This is because i use swap partition instead of swap file and want to check filesystem on every boot prior to mount filesystem
+* This is because i use swap partition instead of swap file and want to check filesystem on every boot prior to mount filesystem, but this solution is incompatible with some entware-ng packages
 * See more here: https://github.com/RMerl/asuswrt-merlin/wiki/USB-Disk-Check-at-Boot
 
 ### Procedure 
