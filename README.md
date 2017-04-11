@@ -9,14 +9,15 @@ Packages and instructions are available at
 * Entware-ng: https://www.hqt.ro/how-to-install-new-generation-entware/
 
 ### Notes
-* Entware-install script in "contrib" may be wildly outdated, above link should give instructions on how to get the latest version.
-* 2Gb swap is not bad
+* Entware-install script in "contrib" have been cleaned and modificated. The most important changes are in /jffs/scripts.
+* Instead of using classic services-start and services-stop i preffer pre-mount, post-mount and unmount scripts
+* This is because i use swap partition instead of swap file and want to check filesystem on every boot prior to mount filesystem
+* See more here: https://github.com/RMerl/asuswrt-merlin/wiki/USB-Disk-Check-at-Boot
 
 ### Procedure 
   1. Install AsusWRT Merlin 
   2. Install entware-ng
-  3. Run post-setup.sh in ./entware-post-setup
-  4. Try backupscript using -p for pretend  and -v for verbose to make sure mounts all work
+  3. Install debian
   
 ### Extra packages 
 A list of extra packages that should be installed using "opkg install" are:
