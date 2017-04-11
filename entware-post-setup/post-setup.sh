@@ -1,9 +1,4 @@
 #!/bin/sh
-cat > /jffs/configs/fstab << EOF
-/jffs/var/www   /www    none    bind    0       0
-EOF
-echo "fstab ok"
-
 cat > /jffs/configs/profile.add << EOF
 export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w \$\[\033[00m\] '
 alias ls='ls --color=yes'
@@ -24,8 +19,9 @@ cat > /jffs/scripts/services-start << EOF
 #!/bin/sh
 ln -sf /jffs/etc/ntp.conf /tmp/etc/ntp.conf
 if [ \$(nvram get ntp_ready) -eq 1 ]; then
-        ntpd -l else
-        logger -t "\$(basename \$0) \$*" "Cannot get initialise NTP Server!"
+	ntpd -l
+else
+	logger -t "\$(basename \$0) \$*" "Cannot get initialise NTP Server!"
 fi
 EOF
 chmod +x /jffs/scripts/services-start
