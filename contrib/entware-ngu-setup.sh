@@ -186,8 +186,6 @@ export PS1='\[\033[01;32m\]\u@\h\[\033[01;34m\] \w $\[\033[00m\] '
 alias ls='ls --color=yes'
 alias l='ls -lFA --color=yes'
 alias ll='ls -lF --color=yes'
-"\e[1;5C": forward-word   # ctrl + right
-"\e[1;5D": backward-word  # ctrl + left
 EOF
 
 if [ "$(nvram get jffs2_scripts)" != "1" ]; then
