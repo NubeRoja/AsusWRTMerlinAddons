@@ -43,7 +43,7 @@ echo -e "$INFO the old ones will be saved on partition where Entware-NG is insta
 echo -e "$INFO like /tmp/mnt/sda1/jffs_scripts_backup.tgz"
 echo
 
-if [ ! -d /jffs/scripts ] ; then
+if [ ! -d /jffs/scripts ]; then
 	echo -e "$ERROR Please \"Enable JFFS partition\" from \"Administration > System\""
 	echo -e "$ERROR from router web UI: www.asusrouter.com/Advanced_System_Content.asp"
 	echo -e "$ERROR then reboot router and try again. Exiting..."
@@ -74,21 +74,17 @@ esac
 
 i=1 # Will count available partitions (+ 1)
 echo -e "$INFO Looking for available partitions..."
-for mounted in $(/bin/mount | grep -E "$PART_TYPES" | cut -d" " -f3) ; do
+for mounted in $(/bin/mount | grep -E "$PART_TYPES" | cut -d" " -f3); do
 	echo "[$i] --> $mounted"
 	eval mounts$i="$mounted"
 	i=$((i+1))
 done
 
-if [ "$i" = "1" ] ; then
-	echo -e "$ERROR No $PART_TYPES partitions available. Exiting..."
-	exit 1
-fi
-
+[ $i -eq 1 ]&& echo -e "$ERROR No $PART_TYPES partitions available. Exiting..." && exit 1
 echo -en "$INPUT Please enter partition number or 0 to exit\n$BOLD[0-$((i-1))]$NORM: "
 read partitionNumber
-[ "$partitionNumber" = "0" ] && echo -e "$INFO Exiting..." && exit 0
-[ "$partitionNumber" -gt $((i-1)) ] && echo -e "$ERROR Invalid partition number! Exiting..." && exit 1
+[ $partitionNumber -eq 0 ] && echo -e "$INFO Exiting..." && exit 0
+[ $partitionNumber -gt $((i-1)) ] && echo -e "$ERROR Invalid partition number! Exiting..." && exit 1
 
 entPartition=""
 eval entPartition=\$mounts"$partitionNumber"
@@ -99,7 +95,6 @@ asuswareFolder=$entPartition/$OPT_FOLD
 optwareFolder=$entPartition/$OPTNG_FOLD
 
 [ -f /opt/etc/init.d/rc.unslung ] && echo -e "$WARNING stopping running services..." && /opt/etc/init.d/rc.unslung stop
-[ -d /opt/debian ] && echo -e "$WARNING Found chrooted-debian installation, stopping debian..." && debian stop
 [ -d $entwareFolder ] && backup $entwareFolder $ENT_FOLD
 [ -d $entFolder ] && backup $entFolder $ENTNG_FOLD
 [ -d $asuswareFolder ] && backup $asuswareFolder $OPT_FOLD
@@ -163,7 +158,7 @@ cat > /jffs/scripts/post-mount << EOF
 #	Start Entware services
 TAG=\$(basename "\$0")_\$@
 
-if [ "\$1" = "$entPartition" ] ; then
+if [ "\$1" = "$entPartition" ]; then
         ln -nsf \$1/entware-ng.arm /tmp/opt && logger -t \$TAG "Created entware-ng symlink"
         [ -f /opt/swap ] && swapon /opt/swap && logger -t \$TAG "Mounted swap file..."
         logger -t \$TAG "Running rc.unslung to start Entware services ..."
@@ -181,19 +176,17 @@ cat > /jffs/scripts/unmount << EOF
 # If partition is the entware volume
 #       Stop entware services
 #       Unmount swap file if exists
-#	Stop chrooted services if debian exists
 OPT=\$(dirname \$(readlink /tmp/opt))
 TAG=\$(basename "\$0")_\$@
-if [ "\$1" == "\$OPT" ] ; then
+if [ "\$1" = "\$OPT" ]; then
         sh /opt/etc/init.d/rc.unslung stop
         [ -f /opt/swap ] && swapoff /opt/swap && logger -t \$TAG "Unmounting swap file..."
-	[ -d /opt/debian ] && debian stop
 fi
 EOF
 
 chmod +x /jffs/scripts/unmount
 
-if [ "$(nvram get jffs2_scripts)" != "1" ] ; then
+if [ "$(nvram get jffs2_scripts)" != "1" ]; then
         echo -e "$INFO Enabling custom scripts and configs from /jffs..."
         nvram set jffs2_scripts=1
         nvram commit
