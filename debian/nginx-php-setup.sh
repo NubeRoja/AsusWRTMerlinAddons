@@ -39,3 +39,8 @@ EOF
 
 chroot /opt/debian/ service php5-fpm restart
 chroot /opt/debian/ service nginx restart
+
+echo "nginx" >>/opt/etc/chroot-services.list
+echo "php5-fpm" >>/opt/etc/chroot-services.list
+
+debian restart
