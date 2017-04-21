@@ -41,7 +41,7 @@ start() {
 		exit 1
 	fi
 	echo "Starting chroot'ed Debian services..."
-	for dir in dev proc sys; do
+	for dir in dev proc sys dev/pts; do
 		mount -o bind /\$dir "\$CHROOT_DIR/\$dir"
 	done
 	[ -z "\$EXT_DIR" ] || mount -o bind "\$EXT_DIR" "\$CHROOT_DIR/mnt"
@@ -61,38 +61,24 @@ stop() {
 		chroot "\$CHROOT_DIR" "/etc/init.d/\$line" "stop"
 		sleep 2
 	done < \$CHROOT_SERVICES_LIST
-	mount | grep "\$CHROOT_DIR" | awk '{print \$3}' | xargs umount -l
+	for dir in dev/pts dev proc sys; do
+		umount -l "\$CHROOT_DIR/\$dir"
+	done
 }
 	
 restart() {
 	if ! \$RUNNING; then
 		echo "Chroot'ed services seems to be already stopped"
-		start
 	else
-		echo "Stopping chroot'ed Debian services..."
-		while IFS= read -r line; do
-			chroot "\$CHROOT_DIR" "/etc/init.d/\$line" "stop"
-			sleep 2
-		done < \$CHROOT_SERVICES_LIST
-		mount | grep "\$CHROOT_DIR" | awk '{print \$3}' | xargs umount -l
-		echo "Restarting chroot'ed Debian services..."
-	  for dir in dev proc sys; do
-			mount -o bind /\$dir "\$CHROOT_DIR/\$dir"
-	  done
-	  [ -z "\$EXT_DIR" ] || mount -o bind "\$EXT_DIR" "\$CHROOT_DIR/mnt"
-		while IFS= read -r line; do
-			chroot "\$CHROOT_DIR" "/etc/init.d/\$line" "start"
-			sleep 2
-		done < \$CHROOT_SERVICES_LIST
+		stop
 	fi
+	start
 }	
 
 enter() {
-	[ -z "\$EXT_DIR" ] || mount -o bind "\$EXT_DIR" "\$CHROOT_DIR/mnt"
-	mount -o bind /dev/ /opt/debian/dev/
-	mount -o bind /dev/pts /opt/debian/dev/pts
-	mount -o bind /proc/ /opt/debian/proc/
-	mount -o bind /sys/ /opt/debian/sys/
+	if ! \$RUNNING; then
+		start
+	fi
 	clear
 	chroot /opt/debian /bin/bash
 }
