@@ -4,7 +4,7 @@ cat > /jffs/configs/fstab << EOF
 EOF
 chmod 644 /jffs/configs/fstab
 
-mkdir -p /jffs/var
+mkdir -p /jffs/var/www
 tar cf - /www/device-map | tar -C /jffs/var/www -xvf -
 
 cat > /jffs/scripts/fstab.postconf << EOF
