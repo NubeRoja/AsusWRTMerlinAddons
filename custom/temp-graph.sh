@@ -1,11 +1,11 @@
 #!/bin/sh
 cat > /jffs/configs/fstab << EOF
-/jffs/var/www		/www		none		bind		0		0
+/jffs/var/www/device-map		/www/device-map		none		bind		0		0
 EOF
 chmod 644 /jffs/configs/fstab
 
 mkdir -p /jffs/var
-tar cf - /www | tar -C /jffs/var -xvf -
+tar cf - /www/device-map | tar -C /jffs/var/www -xvf -
 
 cat > /jffs/scripts/fstab.postconf << EOF
 #!/bin/sh
