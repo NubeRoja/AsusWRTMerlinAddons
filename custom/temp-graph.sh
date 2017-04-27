@@ -1,14 +1,10 @@
 #!/bin/sh
-cat > /jffs/configs/fstab << EOF
-/jffs/var/www/device-map		/www/device-map		none		bind		0		0
-EOF
-chmod 644 /jffs/configs/fstab
-
 mkdir -p /jffs/var/www
-tar cf - /www/device-map | tar -C /jffs/var/www -xvf -
-
+tar cf - /www/device-map | tar -C /jffs/var -xvf -
+echo "/jffs/var/www/device-map		/www/device-map		none		bind		0		0" >> /etc/fstab
 cat > /jffs/scripts/fstab.postconf << EOF
 #!/bin/sh
+echo 
 mount -a
 EOF
 chmod 755 /jffs/scripts/fstab.postconf
@@ -630,5 +626,4 @@ document.getElementById('cpu_field').innerHTML = code;
 </html>
 EOF
 
-cp /jffs/configs/fstab /etc; mount -a
-service restart_httpd
+/jffs/scripts/fstab.postconf
