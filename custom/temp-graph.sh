@@ -1,5 +1,5 @@
 #!/bin/sh
-mkdir -p /jffs/var/www
+mkdir -p /jffs/var
 tar cf - /www/device-map | tar -C /jffs/var -xvf -
 echo "/jffs/var/www/device-map		/www/device-map		none		bind		0		0" >> /etc/fstab
 cat > /jffs/scripts/fstab.postconf << EOF
