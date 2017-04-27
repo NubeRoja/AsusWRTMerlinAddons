@@ -130,7 +130,7 @@ case "\$FSTYPE" in
 		logger -t "\$TAG" "Mounting swap partition"
 		swapon "\$1" && LOG="Swap partition mounted" || LOG="Device busy. Already mounted?"
 		;;
-	"HPFS|NTFS")
+	"HPFS/NTFS")
 		logger -t "\$TAG" "Checking \$FSTYPE filesystem"
 		LOG=\$(ntfsck -a "\$1")
 		;;
