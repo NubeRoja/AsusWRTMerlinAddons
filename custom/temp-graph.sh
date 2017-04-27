@@ -1,10 +1,10 @@
 #!/bin/sh
 mkdir -p /jffs/var
 tar cf - /www/device-map | tar -C /jffs/var -xvf -
-echo "/jffs/var/www/device-map		/www/device-map		none		bind		0		0" >> /etc/fstab
+
 cat > /jffs/scripts/fstab.postconf << EOF
 #!/bin/sh
-echo 
+echo "/jffs/var/www/device-map		/www/device-map		none		bind		0		0" >> /etc/fstab
 mount -a
 EOF
 chmod 755 /jffs/scripts/fstab.postconf
