@@ -1,0 +1,90 @@
+#!/bin/sh
+
+export PATH=/opt/bin:/opt/sbin:/sbin:/bin:/usr/sbin:/usr/bin
+
+BOLD="\033[1m"
+NORM="\033[0m"
+INFO="${BOLD}Info: $NORM"
+ERROR="${BOLD}*** Error: $NORM"
+WARNING="${BOLD}* Warning: $NORM"
+
+echo -e "${INFO}This script was created by NubeRoja."
+echo -e "${INFO}it's based on this excellent web page created by TeHashX:"
+echo -e "${INFO}https://www.hqt.ro/asterisk-voip-server-running-on-asuswrt-routers/"
+echo -e "${INFO}with some configs for Movistar VoIP Spain added by NubeRoja"
+echo -e "${WARNING}This scripts depends on a previous installation of chrooted debian"
+cd /opt || ( echo -e "${ERROR}debian not installed. Exiting" && exit 1 )
+echo -e "${INFO}Installing packages" 
+chroot /opt/debian/ apt install asterisk
+chroot /opt/debian/ apt install asterisk-core-sounds-es
+chroot /opt/debian/ apt install asterisk-core-sounds-es-wav
+chroot /opt/debian/ apt install asterisk-core-sounds-es-g722
+chroot /opt/debian/ apt install asterisk-core-sounds-es-gsm
+
+echo -en "${INFO}Please type your phone number, it's the default user and password for Movistar VoIP: "
+read phonenumber
+echo
+echo -en "${INFO}How many users do you want to create [1-9]: "
+read usersnumber
+echo
+
+cat > /opt/debian//etc/asterisk/sip.conf << EOF
+[general]
+context=unauthenticated ; default context for incoming calls
+allowguest=no ; disable unauthenticated calls
+srvlookup=yes ; enabled DNS SRV record lookup on outbound calls
+udpbindaddr=0.0.0.0 ; listen for UDP requests on all interfaces
+tcpenable=no ; disable TCP support
+language=es
+nat=yes
+
+register => $phonenumber@telefonica.net:$phonenumber@10.31.255.134:5070
+
+[dispositivo](!) ; create a template for our devices
+type=friend ; the channel driver will match on username first, IP second
+context=dispositivos ; this is where calls from the device will enter the dialplan
+host=dynamic ; the device will register with asterisk
+dtmfmode=auto ; accept touch-tones from the devices, negotiated automatically
+disallow=all ; reset which voice codecs this device will accept or offer
+allow=gsm,ulaw,alaw ; which audio codecs to accept from, and request to, the device
+mailbox=555@default ; all devices share a common mailbox
+sendrpid=yes ; send Remote-Party-Id to devices
+
+[Movistar](!)
+type=peer
+secret=$phonenumber
+insecure=port,invite
+dtmfmode=auto
+disallow=all
+allow=gsm,ulaw,alaw
+outboundproxy=10.31.255.134:5070
+
+[MovistarOut](Movistar)
+host=telefonica.net
+fromuser=$phonenumber
+fromdomain=telefonica.net
+
+[MovistarIn](Movistar)
+context=incoming
+defaultuser=$phonenumber
+host=10.31.255.134
+port=5060
+qualify=no
+trustrpid=yes
+EOF
+
+for i = 1 to usersnumber; do
+	echo -en "${INFO}Please type $i user name: "
+	read username
+	echo -en "${INFO}Please type $i user password: "
+	read password
+	echo -en "${INFO}Please Retype $i user password: "
+	read password2
+
+	cat >> /opt/debian//etc/asterisk/sip.conf << EOF
+
+[$username](dispositivo)
+auth=10${i}@$password@192.168.1.1
+EOF
+
+fi
