@@ -1,3 +1,4 @@
+#!/bin/sh
 opkg install nginx php5-fpm
 
 mkdir -p /opt/etc/nginx/sites-available
