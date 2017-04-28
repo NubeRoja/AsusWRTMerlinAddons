@@ -4,6 +4,40 @@ opkg install nginx php5-fpm
 mkdir -p /opt/etc/nginx/sites-available
 mkdir -p /opt/etc/nginx/sites-enabled
 
+cat > /opt/etc/nginx/nginx.conf << EOF
+user  nobody;
+worker_processes  1;
+
+#error_log  /opt/var/log/nginx/error.log;
+#error_log  /opt/var/log/nginx/error.log  notice;
+#error_log  /opt/var/log/nginx/error.log  info;
+
+#pid        /opt/var/run/nginx.pid;
+
+events {
+	worker_connections  64;
+}
+
+http {
+	include       mime.types;
+	default_type  application/octet-stream;
+
+	#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+	#                  '$status $body_bytes_sent "$http_referer" '
+	#                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+	#access_log  /opt/var/log/nginx/access.log main;
+
+	sendfile        on;
+	#tcp_nopush     on;
+
+	#keepalive_timeout  0;
+	keepalive_timeout  65;
+	#gzip  on;
+	include /etc/nginx/sites-enabled/*;
+}
+EOF
+
 cat > /opt/etc/nginx/sites-available/default << EOF
 server {
 	listen 80;
