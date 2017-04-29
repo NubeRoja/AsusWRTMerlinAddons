@@ -22,9 +22,9 @@ http {
 	include       mime.types;
 	default_type  application/octet-stream;
 
-	#log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
-	#                  '$status $body_bytes_sent "$http_referer" '
-	#                  '"$http_user_agent" "$http_x_forwarded_for"';
+	#log_format  main  '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+	#                  '\$status \$body_bytes_sent \"$http_referer" '
+	#                  '"\$http_user_agent" "\$http_x_forwarded_for"';
 
 	#access_log  /opt/var/log/nginx/access.log main;
 
@@ -34,14 +34,14 @@ http {
 	#keepalive_timeout  0;
 	keepalive_timeout  65;
 	#gzip  on;
-	include /etc/nginx/sites-enabled/*;
+	include /opt/etc/nginx/sites-enabled/*;
 }
 EOF
 
 cat > /opt/etc/nginx/sites-available/default << EOF
 server {
 	listen 80;
-	#listen [::]:82 default_server ipv6only=on; ## listen for ipv6
+	#listen [::]:80 default_server ipv6only=on; ## listen for ipv6
 
 	root /opt/var/www;
 	index index.html index.htm;
