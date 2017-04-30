@@ -43,7 +43,7 @@ server {
 	listen 80;
 	#listen [::]:80 default_server ipv6only=on; ## listen for ipv6
 
-	root /opt/var/www;
+	root /opt/share/www;
 	index index.html index.htm index.php;
 
 	# Make site accessible from http://localhost/
@@ -74,17 +74,19 @@ EOF
 
 ln -sf /opt/etc/nginx/sites-available/default /opt/etc/nginx/sites-enabled/default
 
-sed -i 's-doc_root = "/opt/share/www"-doc_root = "/opt/var/www"-g' "/opt/etc/php.ini"
-
 sed -i 's_;listen = /var/run/php5-fpm.sock_listen = /var/run/php5-fpm.sock_g' "/opt/etc/php5-fpm.d/www.conf"
 sed -i 's_listen = 127.0.0.1:9000_;listen = 127.0.0.1:9000_g' "/opt/etc/php5-fpm.d/www.conf"
 sed -i 's_;listen.owner = www-data_listen.owner = nobody_g' "/opt/etc/php5-fpm.d/www.conf"
 
-cat > /opt/var/www/info.php << EOF
+mkdir -p /opt/share/www
+cat > /opt/share/www/info.php << EOF
 <?php
 phpinfo();
 ?>
 EOF
+
+mv /opt/share/nginx/html/* /opt/share/www
+rm - r /opt/shre/nginx
 
 cat > /opt/etc/init.d/S80nginx << EOF
 #!/bin/sh
