@@ -86,7 +86,7 @@ phpinfo();
 EOF
 
 mv /opt/share/nginx/html/* /opt/share/www
-rm - r /opt/shre/nginx
+rm -r /opt/share/nginx
 
 cat > /opt/etc/init.d/S80nginx << EOF
 #!/bin/sh
