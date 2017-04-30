@@ -44,12 +44,17 @@ server {
 	#listen [::]:80 default_server ipv6only=on; ## listen for ipv6
 
 	root /opt/var/www;
-	index index.html index.htm;
+	index index.html index.htm index.php;
 
 	# Make site accessible from http://localhost/
 	server_name localhost;
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+
 	# pass the PHP scripts to FastCGI server listening on /var/run/php5-fpm.sock
-	location ~ .php\$ {
+	location ~ \\.php\$ {
 		try_files \$uri =404;
 		fastcgi_pass unix:/var/run/php5-fpm.sock;
 		fastcgi_index index.php;
@@ -69,15 +74,17 @@ EOF
 
 ln -sf /opt/etc/nginx/sites-available/default /opt/etc/nginx/sites-enabled/default
 
-sed -i 's/memory_limit = 128M/memory_limit = 16M/g' "/opt/etc/php.ini"
+sed -i 's-doc_root = "/opt/share/www"-doc_root = "/opt/var/www"-g' "/opt/etc/php.ini"
+
+sed -i 's_;listen = /var/run/php5-fpm.sock_listen = /var/run/php5-fpm.sock_g' "/opt/etc/php5-fpm.d/www.conf"
+sed -i 's_listen = 127.0.0.1:9000_;listen = 127.0.0.1:9000_g' "/opt/etc/php5-fpm.d/www.conf"
+sed -i 's_;listen.owner = www-data_listen.owner = nobody_g' "/opt/etc/php5-fpm.d/www.conf"
 
 cat > /opt/var/www/info.php << EOF
 <?php
 phpinfo();
 ?>
 EOF
-sed -i 's_;listen = /var/run/php5-fpm.sock_listen = /var/run/php5-fpm.sock_g' "/opt/etc/php5-fpm.d/www.conf"
-sed -i 's_listen = 127.0.0.1:9000_;listen = 127.0.0.1:9000_g' "/opt/etc/php5-fpm.d/www.conf"
 
 cat > /opt/etc/init.d/S80nginx << EOF
 #!/bin/sh
