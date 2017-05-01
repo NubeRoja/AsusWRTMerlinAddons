@@ -27,6 +27,8 @@ http {
 	#                  '"\$http_user_agent" "\$http_x_forwarded_for"';
 
 	#access_log  /opt/var/log/nginx/access.log main;
+	
+	server_names_hash_bucket_size 64;
 
 	sendfile        on;
 	#tcp_nopush     on;
