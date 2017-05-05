@@ -10,7 +10,7 @@ DESC=Nginx
 
 PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-case \$1 in
+case $1 in
 	start)
 		ARGS=""
 		. /opt/etc/init.d/rc.func
@@ -30,17 +30,17 @@ case \$1 in
 		. /opt/etc/init.d/rc.func
 		;;
 	reload)
-		echo -e -n "\$ansi_white Reloading Nginx conf...       "
-		nginx -s reload && echo -e "\$ansi_green done." || echo -e "\$ansi_red failed.\$ansi_std"
+		echo -e -n "$ansi_white Reloading Nginx conf...       "
+		nginx -s reload && echo -e "$ansi_green done." || echo -e "$ansi_red failed.$ansi_std"
 		;;
 		reopen)
-		echo -e -n "\$ansi_white Reopening Nginx log files...  "
-		nginx -s reopen && echo -e "\$ansi_green done." || echo -e "\$ansi_red failed.\$ansi_std"
+		echo -e -n "$ansi_white Reopening Nginx log files...  "
+		nginx -s reopen && echo -e "$ansi_green done." || echo -e "$ansi_red failed.$ansi_std"
 		;;
 	test)
 		nginx -t
 		;;
 	*)
-		echo -e "\$ansi_white Usage: \$0 (start|stop|restart|check|kill|reload|reopen|test)\$ansi_std"
+		echo -e "$ansi_white Usage: $0 (start|stop|restart|check|kill|reload|reopen|test)$ansi_std"
 		;;
 esac
