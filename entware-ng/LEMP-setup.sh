@@ -20,7 +20,7 @@ echo -e "${INFO}Php5-fpm the FastCGI Process Manager of the PHP5 interpreter,"
 echo -e "${INFO}and mysql-server the database engine."
 echo -e "${INFO}Additionally phpMyAdmin will be installed in www.yourdomain.com/phpmyadmin"
 echo -e "${INFO}If nginx, php, php5-fpm and mysql-server are already installed,"
-echo -e "${INFO}the script will copy old config files to 'name'.PRE-LEMP"
+echo -e "${INFO}the script will copy old config files to 'name'.PRELEMP"
 echo -e "${INPUT} Where do you want to install web server archives? [/opt/share/www] "
 read wwwdir
 [[ -z "$wwwdir" ]] && wwwdir="/opt/share/www"
@@ -31,38 +31,29 @@ mysqlINST=$(opkg list-installed | awk '{print $1}' | grep -q "mysql-server" && e
 
 if $nginxINST; then
 	echo -e "${INFO}Nginx already installed, saving '/opt/etc/nginx/nginx.conf' & '/opt/etc/nginx/sites-available'"
-	[ -f /opt/etc/nginx/nginx.conf ] && mv /opt/etc/nginx/nginx.conf /opt/etc/nginx/nginx.conf.PRE-LEMP
-	if [ -d /opt/etc/nginx/sites-available ]; then
-		mv /opt/etc/nginx/sites-available /opt/etc/nginx/sites-available.PRE-LEMP
-	else
-		mkdir -p /opt/etc/nginx/sites-available
-	fi
-	if [ -d /opt/etc/nginx/sites-enabled ]; then
-		rm /opt/etc/nginx/sites-enabled/*
-	else
-		mkdir -p /opt/etc/nginx/sites-enabled
-	fi
-	opkg remove nginx ----autoremove
-else
-	mkdir -p /opt/etc/nginx/sites-available
-	mkdir -p /opt/etc/nginx/sites-enabled
+	[ -f /opt/etc/nginx/nginx.conf ] && mv "/opt/etc/nginx/nginx.conf" "/opt/etc/nginx/nginx.conf.PRELEMP"
+	[ -d /opt/etc/nginx/sites-available ] && mv "/opt/etc/nginx/sites-available" "/opt/etc/nginx/sites-available.PRELEMP"
+	[ -d /opt/etc/nginx/sites-enabled ] && rm "/opt/etc/nginx/sites-enabled/*"
+	opkg remove nginx --autoremove
 fi
+mkdir -p "/opt/etc/nginx/sites-available"
+mkdir -p "/opt/etc/nginx/sites-enabled"
 
 if $php5fpmINST; then
-	echo -e "${INFO}php5-fpm already installed, saving '/opt/etc/php5-fpm.d.PRE-LEMP/'"
-	[ -f /opt/etc/php5-fpm.d/www.conf ] && mv /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d.PRE-LEMP/
-	opkg remove php5-fpm --autoremove
+	echo -e "${INFO}php5-fpm already installed, saving '/opt/etc/php5-fpm.d.PRELEMP/'"
+	[ -f /opt/etc/php5-fpm.d/www.conf ] && mv /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d.PRELEMP/
+	opkg remove "php5-fpm" --autoremove
 fi
 
 if $php5INSTt; then
-	echo -e "${INFO}php5 already installed, saving '/opt/etc/php.ini.PRE-LEMP'"
-	[ -f /opt/etc/php.ini ] && mv /opt/etc/php.ini /opt/etc/php.ini.PRE-LEMP
+	echo -e "${INFO}php5 already installed, saving '/opt/etc/php.ini.PRELEMP'"
+	[ -f /opt/etc/php.ini ] && mv /opt/etc/php.ini /opt/etc/php.ini.PRELEMP
 	opkg remove php5 --autoremove
 fi
 
 if $mysqlINST; then
-	echo -e "${INFO}MySQL Server already installed, saving '/opt/etc/my.cnf.PRE-LEMP'"
-	[ -f /opt/etc/my.cnf ] && mv /opt/etc/my.cnf /opt/etc/my.cnf.PRE-LEMP
+	echo -e "${INFO}MySQL Server already installed, saving '/opt/etc/my.cnf.PRELEMP'"
+	[ -f /opt/etc/my.cnf ] && mv /opt/etc/my.cnf /opt/etc/my.cnf.PRELEMP
 	opkg remove mysql-server --autoremove
 fi
 
@@ -221,7 +212,7 @@ chmod 755 /opt/etc/init.d/S80nginx
 opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
 
 #sed -i 's_doc_root =  "$wwwdir"_doc_root = "$wwwdir"_g' "/opt/etc/php.ini"
-sed -i 's_session.save_path = "/opt/tmp"_session.save_path = "/opt/tmp/php"_g' "/opt/etc/php.ini"
+sed -i 's,session.save_path = "/opt/tmp",session.save_path = "/opt/tmp/php",g' "/opt/etc/php.ini"
 mkdir -p /opt/tmp/php
 chmod 755 /opt/tmp/php
 sed -i 's_;listen = /var/run/php5-fpm.sock_listen = /var/run/php5-fpm.sock_g' "/opt/etc/php5-fpm.d/www.conf"
