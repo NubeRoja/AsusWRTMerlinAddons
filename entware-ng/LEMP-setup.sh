@@ -25,7 +25,7 @@ echo -e "${INFO}Php5-fpm the FastCGI Process Manager of the PHP5 interpreter,"
 echo -e "${INFO}and mysql-server the database engine."
 echo -e "${INFO}Additionally phpMyAdmin will be installed in www.yourdomain.com/phpmyadmin"
 echo -e "${INFO}If nginx, php, php5-fpm and mysql-server are already installed,"
-echo -e "${INFO}the script will copy old config files to 'name'.PRELEMP"
+echo -e "${INFO}the script will copy old config files to 'name'-PRELEMP"
 echo -en "${INPUT} Where do you want to install web server archives? [/opt/share/www] "
 read wwwdir
 if [ -z "$wwwdir" ]; then wwwdir="/opt/share/www"; fi
@@ -48,12 +48,12 @@ fi
 
 if $phpINSTt; then
 	echo -e "${WARNING}php5 already installed, saving '/opt/etc/php.ini-PRELEMP'"
-	[ -f /opt/etc/php.ini ] && cp /opt/etc/php.ini /opt/etc/php.ini.PRELEMP
+	[ -f /opt/etc/php.ini ] && cp /opt/etc/php.ini /opt/etc/php.ini-PRELEMP
 fi
 
 if $mysqlINST; then
-	echo -e "${WARNING}MySQL Server already installed, saving '/opt/etc/my.cnf.PRELEMP'"
-	[ -f /opt/etc/my.cnf ] && cp /opt/etc/my.cnf /opt/etc/my.cnf.PRELEMP
+	echo -e "${WARNING}MySQL Server already installed, saving '/opt/etc/my.cnf-PRELEMP'"
+	[ -f /opt/etc/my.cnf ] && cp /opt/etc/my.cnf /opt/etc/my.cnf-PRELEMP
 fi
 
 opkg install nginx && echo -e "${INFO}Nginx installed Ok, configuring..."
