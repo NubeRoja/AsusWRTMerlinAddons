@@ -2,7 +2,6 @@
 BOLD="\033[1m"
 NORM="\033[0m"
 INFO="${BOLD}Info: $NORM"
-ERROR="${BOLD}*** Error: $NORM"
 WARNING="${BOLD}* Warning: $NORM"
 INPUT="${BOLD}=> $NORM"
 
@@ -21,43 +20,40 @@ echo -e "${INFO}and mysql-server the database engine."
 echo -e "${INFO}Additionally phpMyAdmin will be installed in www.yourdomain.com/phpmyadmin"
 echo -e "${INFO}If nginx, php, php5-fpm and mysql-server are already installed,"
 echo -e "${INFO}the script will copy old config files to 'name'.PRELEMP"
-echo -e "${INPUT} Where do you want to install web server archives? [/opt/share/www] "
+echo -en "${INPUT} Where do you want to install web server archives? [/opt/share/www] "
 read wwwdir
-[[ -z "$wwwdir" ]] && wwwdir="/opt/share/www"
-nginxINSt=$(opkg list-installed | awk '{print $1}' | grep -q "nginx" && echo true || echo false)
-php5INSTt=$(opkg list-installed | awk '{print $1}' | grep -q "php5" && echo true || echo false)
-php5fpmINST=$(opkg list-installed | awk '{print $1}' | grep -q "php5-fpm" && echo true || echo false)
+if [ -z "$wwwdir" ]; then wwwdir="/opt/share/www"; fi
+nginxINST=$(opkg list-installed | awk '{print $1}' | grep -q "nginx" && echo true || echo false)
+phpINSTt=$(opkg list-installed | awk '{print $1}' | grep -q "php5" && echo true || echo false)
+phpfpmINST=$(opkg list-installed | awk '{print $1}' | grep -q "php5-fpm" && echo true || echo false)
 mysqlINST=$(opkg list-installed | awk '{print $1}' | grep -q "mysql-server" && echo true || echo false)
 
 if $nginxINST; then
-	echo -e "${INFO}Nginx already installed, saving '/opt/etc/nginx/nginx.conf' & '/opt/etc/nginx/sites-available'"
-	[ -f /opt/etc/nginx/nginx.conf ] && mv "/opt/etc/nginx/nginx.conf" "/opt/etc/nginx/nginx.conf.PRELEMP"
+	echo -e "${WARNING}Nginx already installed, saving '/opt/etc/nginx/nginx.conf' & '/opt/etc/nginx/sites-available'"
+	[ -f /opt/etc/nginx/nginx.conf ] && cp "/opt/etc/nginx/nginx.conf" "/opt/etc/nginx/nginx.conf.PRELEMP"
 	[ -d /opt/etc/nginx/sites-available ] && mv "/opt/etc/nginx/sites-available" "/opt/etc/nginx/sites-available.PRELEMP"
-	[ -d /opt/etc/nginx/sites-enabled ] && rm "/opt/etc/nginx/sites-enabled/*"
+	[ -d /opt/etc/nginx/sites-enabled ] && rm -r "/opt/etc/nginx/sites-enabled/*"
 	opkg remove nginx --autoremove
 fi
 mkdir -p "/opt/etc/nginx/sites-available"
 mkdir -p "/opt/etc/nginx/sites-enabled"
 
-if $php5fpmINST; then
-	echo -e "${INFO}php5-fpm already installed, saving '/opt/etc/php5-fpm.d.PRELEMP/'"
-	[ -f /opt/etc/php5-fpm.d/www.conf ] && mv /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d.PRELEMP/
-	opkg remove "php5-fpm" --autoremove
+if $phpfpmINST; then
+	echo -e "${WARNING}php5-fpm already installed, saving '/opt/etc/php5-fpm.d.PRELEMP/'"
+	[ -f /opt/etc/php5-fpm.d/www.conf ] && cp /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d.PRELEMP/
 fi
 
-if $php5INSTt; then
-	echo -e "${INFO}php5 already installed, saving '/opt/etc/php.ini.PRELEMP'"
-	[ -f /opt/etc/php.ini ] && mv /opt/etc/php.ini /opt/etc/php.ini.PRELEMP
-	opkg remove php5 --autoremove
+if $phpINSTt; then
+	echo -e "${WARNING}php5 already installed, saving '/opt/etc/php.ini.PRELEMP'"
+	[ -f /opt/etc/php.ini ] && cp /opt/etc/php.ini /opt/etc/php.ini.PRELEMP
 fi
 
 if $mysqlINST; then
-	echo -e "${INFO}MySQL Server already installed, saving '/opt/etc/my.cnf.PRELEMP'"
-	[ -f /opt/etc/my.cnf ] && mv /opt/etc/my.cnf /opt/etc/my.cnf.PRELEMP
-	opkg remove mysql-server --autoremove
+	echo -e "${WARNING}MySQL Server already installed, saving '/opt/etc/my.cnf.PRELEMP'"
+	[ -f /opt/etc/my.cnf ] && cp /opt/etc/my.cnf /opt/etc/my.cnf.PRELEMP
 fi
 
-opkg install nginx && echo -e "${INFO}Nginx installed Ok, configuring..."
+opkg install nginx --force-overwrite && echo -e "${INFO}Nginx installed Ok, configuring..."
 cat > /opt/etc/nginx/nginx.conf << EOF
 user  nobody nobody;
 worker_processes  1;
@@ -209,7 +205,7 @@ esac
 EOF
 chmod 755 /opt/etc/init.d/S80nginx
 
-opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
+opkg install php5-fpm --force-overwrite && echo -e "${INFO}php5-fpm installed Ok, configuring..."
 
 #sed -i 's_doc_root =  "$wwwdir"_doc_root = "$wwwdir"_g' "/opt/etc/php.ini"
 sed -i 's,session.save_path = "/opt/tmp",session.save_path = "/opt/tmp/php",g' "/opt/etc/php.ini"
@@ -220,7 +216,7 @@ sed -i 's_listen = 127.0.0.1:9000_;listen = 127.0.0.1:9000_g' "/opt/etc/php5-fpm
 sed -i 's_;listen.owner = www-data_listen.owner = nobody_g' "/opt/etc/php5-fpm.d/www.conf"
 sed -i 's_;listen.group = www-data_listen.group = nobody_g' "/opt/etc/php5-fpm.d/www.conf"
 
-opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
+opkg install mysql-server --force-overwrite && echo -e "${INFO}mysql-server installed Ok, configuring..."
 
 sed -E -i 's_socket[[:space:]]+= /opt/var/run/mysqld.sock_socket          = /var/run/mysqld.sock_g' "/opt/etc/my.cnf"
 opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
@@ -246,6 +242,5 @@ rm ./phpMyAdmin-4.0.10.15-all-languages.zip
 cp $wwwdir/phpmyadmin/config.sample.inc.php $wwwdir/phpmyadmin/config.inc.php
 chmod 644 $wwwdir/phpmyadmin/config.inc.php
 sed -i 's/localhost/127.0.0.1/g' "$wwwdir/phpmyadmin/config.inc.php"
-
 
 services restart
