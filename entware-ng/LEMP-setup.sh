@@ -8,6 +8,7 @@ INPUT="${BOLD}=> $NORM"
 getgithubraw () {
 	[ -f "$2" ] && mv "$2" "$2-opkg"
 	wget -O "$2" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master$1"
+	[ ! -z $3 ] && chmod "$3" "$2"
 }
 
 clear
@@ -56,24 +57,23 @@ if $mysqlINST; then
 fi
 
 opkg install nginx && echo -e "${INFO}Nginx installed Ok, configuring..."
-getgithubraw "/entware-ng/LEMP-config/nginx.conf" "/opt/etc/nginx.conf"
+getgithubraw "/entware-ng/LEMP-config/nginx.conf" "/opt/etc/nginx.conf" 600
 mkdir -p "/opt/etc/nginx/sites-available"
 mkdir -p "/opt/etc/nginx/sites-enabled"
-getgithubraw "/entware-ng/LEMP-config/default" "/opt/etc/nginx/sites-available/default"
+getgithubraw "/entware-ng/LEMP-config/default" "/opt/etc/nginx/sites-available/default" 600
 cd /opt/etc/nginx/sites-enabled
 ln -sf ../sites-available/default default
-getgithubraw "/entware-ng/LEMP-config/S80nginx" "/opt/etc/init.d/S80nginx"
-chmod 755 /opt/etc/init.d/S80nginx
-[ -f /opt/etc/init.d/S80nginx-opkg ] && chmod 555 /opt/etc/init.d/S80nginx-opkg
+getgithubraw "/entware-ng/LEMP-config/S80nginx" "/opt/etc/init.d/S80nginx" 700
+[ -f /opt/etc/init.d/S80nginx-opkg ] && chmod 600 /opt/etc/init.d/S80nginx-opkg
 
 opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
-getgithubraw "/entware-ng/LEMP-config/php.ini" "/opt/etc/php.ini"
+getgithubraw "/entware-ng/LEMP-config/php.ini" "/opt/etc/php.ini" 600
 mkdir -p /opt/tmp/php
 chmod 755 /opt/tmp/php
-getgithubraw "/entware-ng/LEMP-config/www.conf" "/opt/etc/php5-fpm.d/www.conf"
+getgithubraw "/entware-ng/LEMP-config/www.conf" "/opt/etc/php5-fpm.d/www.conf" 600
 
 opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
-getgithubraw "/entware-ng/LEMP-config/my.cnf" "/opt/etc/my.cnf"
+getgithubraw "/entware-ng/LEMP-config/my.cnf" "/opt/etc/my.cnf" 600
 opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
 mysql_install_db --force
 
@@ -89,10 +89,10 @@ mv /opt/share/nginx/html/* $wwwdir
 rm -r /opt/share/nginx
 
 cd $wwwdir
-wget https://files.phpmyadmin.net/phpMyAdmin/4.0.10.15/phpMyAdmin-4.0.10.15-all-languages.zip --no-check-certificate
-unzip -q phpMyAdmin-4.0.10.15-all-languages.zip
-mv ./phpMyAdmin-4.0.10.15-all-languages ./phpmyadmin
-rm ./phpMyAdmin-4.0.10.15-all-languages.zip
+https://files.phpmyadmin.net/phpMyAdmin/4.0.10.20/phpMyAdmin-4.0.10.20-all-languages.zip --no-check-certificate
+unzip -q phpMyAdmin-4.0.10.20-all-languages.zip
+mv ./phpMyAdmin-4.0.10.20-all-languages ./phpmyadmin
+rm ./phpMyAdmin-4.0.10.20-all-languages.zip
 
 cp $wwwdir/phpmyadmin/config.sample.inc.php $wwwdir/phpmyadmin/config.inc.php
 chmod 644 $wwwdir/phpmyadmin/config.inc.php
