@@ -19,12 +19,18 @@ echo -e "${INFO}Nginx will be the http server,"
 echo -e "${INFO}Php5-fpm the FastCGI Process Manager of the PHP5 interpreter,"
 echo -e "${INFO}and mysql-server the database engine."
 echo -e "${INFO}Additionally phpMyAdmin will be installed in www.yourdomain.com/phpmyadmin"
+echo -e "${INFO}If nginx, php, php5-fpm and mysql-server are already installed,"
+echo -e "${INFO}the script will copy old config files to 'name'.PRE-LEMP"
 echo -e "${INPUT} Where do you want to install web server archives? [/opt/share/www] "
 read wwwdir
 [[ -z "$wwwdir" ]] && wwwdir="/opt/share/www"
 nginxINSt=$(opkg list-installed | awk '{print $1}' | grep -q "nginx" && echo true || echo false)
+php5INSTt=$(opkg list-installed | awk '{print $1}' | grep -q "php5" && echo true || echo false)
+php5fpmINST=$(opkg list-installed | awk '{print $1}' | grep -q "php5-fpm" && echo true || echo false)
+mysqlINST=$(opkg list-installed | awk '{print $1}' | grep -q "mysql-server" && echo true || echo false)
 
 if $nginxINST; then
+	echo -e "${INFO}Nginx already installed, saving '/opt/etc/nginx/nginx.conf' & '/opt/etc/nginx/sites-available'"
 	[ -f /opt/etc/nginx/nginx.conf ] && mv /opt/etc/nginx/nginx.conf /opt/etc/nginx/nginx.conf.PRE-LEMP
 	if [ -d /opt/etc/nginx/sites-available ]; then
 		mv /opt/etc/nginx/sites-available /opt/etc/nginx/sites-available.PRE-LEMP
@@ -36,13 +42,31 @@ if $nginxINST; then
 	else
 		mkdir -p /opt/etc/nginx/sites-enabled
 	fi
+	opkg remove nginx ----autoremove
 else
 	mkdir -p /opt/etc/nginx/sites-available
 	mkdir -p /opt/etc/nginx/sites-enabled
 fi
 
-opkg install nginx --force-reinstall
+if $php5-fpmINST; then
+	echo -e "${INFO}php5-fpm already installed, saving '/opt/etc/php5-fpm.d.PRE-LEMP/'"
+	[ -f /opt/etc/php5-fpm.d/www.conf ] && mv /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d.PRE-LEMP/
+	opkg remove php5-fpm --autoremove
+fi
 
+if $php5INSTt; then
+	echo -e "${INFO}php5 already installed, saving '/opt/etc/php.ini.PRE-LEMP'"
+	[ -f /opt/etc/php.ini ] && mv /opt/etc/php.ini /opt/etc/php.ini.PRE-LEMP
+	opkg remove php5 --autoremove
+fi
+
+if $mysqlINST; then
+	echo -e "${INFO}MySQL Server already installed, saving '/opt/etc/my.cnf.PRE-LEMP'"
+	[ -f /opt/etc/my.cnf ] && mv /opt/etc/my.cnf /opt/etc/my.cnf.PRE-LEMP
+	opkg remove mysql-server --autoremove
+fi
+
+opkg install nginx && echo -e "${INFO}Nginx installed Ok, configuring..."
 cat > /opt/etc/nginx/nginx.conf << EOF
 user  nobody nobody;
 worker_processes  1;
@@ -194,37 +218,21 @@ esac
 EOF
 chmod 755 /opt/etc/init.d/S80nginx
 
-php5INSTt=$(opkg list-installed | awk '{print $1}' | grep -q "php5" && echo true || echo false)
+opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
 
-if $php5INSTt; then
-	[ -f /opt/etc/php.ini ] && mv /opt/etc/php.ini /opt/etc/php.ini.PRE-LEMP
-	opkg remove php5
-fi
-
-php5-fpmINST=$(opkg list-installed | awk '{print $1}' | grep -q "php5-fpm" && echo true || echo false)
-
-if $php5-fpmINST; then
-	[ -f /opt/etc/php5-fpm.d/www.conf ] && mv /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d.PRE-LEMP/
-fi
-
-opkg install php5-fpm --force-reinstall
-opkg install php5-mod-mysqli
 #sed -i 's_doc_root =  "$wwwdir"_doc_root = "$wwwdir"_g' "/opt/etc/php.ini"
-
+sed -i 's_session.save_path = "/opt/tmp"_session.save_path = "/opt/tmp/php"_g' "/opt/etc/php.ini"
+mkdir -p /opt/tmp/php
+chmod 755 /opt/tmp/php
 sed -i 's_;listen = /var/run/php5-fpm.sock_listen = /var/run/php5-fpm.sock_g' "/opt/etc/php5-fpm.d/www.conf"
 sed -i 's_listen = 127.0.0.1:9000_;listen = 127.0.0.1:9000_g' "/opt/etc/php5-fpm.d/www.conf"
 sed -i 's_;listen.owner = www-data_listen.owner = nobody_g' "/opt/etc/php5-fpm.d/www.conf"
 sed -i 's_;listen.group = www-data_listen.group = nobody_g' "/opt/etc/php5-fpm.d/www.conf"
 
-mysqlINST=$(opkg list-installed | awk '{print $1}' | grep -q "mysql-server" && echo true || echo false)
-
-if $mysqlINST; then
-	[ -f /opt/etc/my.cnf ] && mv /opt/etc/my.cnf /opt/etc/my.cnf.PRE-LEMP
-fi
-
-opkg install mysql-server -force-reinstall
+opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
 
 sed -E -i 's_socket[[:space:]]+= /opt/var/run/mysqld.sock_socket          = /var/run/mysqld.sock_g' "/opt/etc/my.cnf"
+opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
 mysql_install_db --force
 
 mkdir -p $wwwdir
