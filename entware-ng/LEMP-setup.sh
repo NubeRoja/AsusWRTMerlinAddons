@@ -7,7 +7,7 @@ INPUT="${BOLD}=> $NORM"
 
 getgithubraw () {
 	[ -f "$2" ] && mv "$2" "$2-opkg"
-	wget -O "$2" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master$2"
+	wget -O "$2" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master$1"
 }
 
 clear
