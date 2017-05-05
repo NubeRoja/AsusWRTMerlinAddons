@@ -72,6 +72,8 @@ mkdir -p /opt/tmp/php
 chmod 755 /opt/tmp/php
 getgithubraw "/entware-ng/LEMP-config/www.conf" "/opt/etc/php5-fpm.d/www.conf" 600
 
+mkdir -p /opt/tmp/mysql
+chown -R nobody /opt/tmp/mysql
 opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
 getgithubraw "/entware-ng/LEMP-config/my.cnf" "/opt/etc/my.cnf" 600
 opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
