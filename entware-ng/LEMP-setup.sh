@@ -48,7 +48,7 @@ else
 	mkdir -p /opt/etc/nginx/sites-enabled
 fi
 
-if $php5-fpmINST; then
+if $php5fpmINST; then
 	echo -e "${INFO}php5-fpm already installed, saving '/opt/etc/php5-fpm.d.PRE-LEMP/'"
 	[ -f /opt/etc/php5-fpm.d/www.conf ] && mv /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d.PRE-LEMP/
 	opkg remove php5-fpm --autoremove
@@ -248,7 +248,7 @@ rm -r /opt/share/nginx
 
 cd $wwwdir
 wget https://files.phpmyadmin.net/phpMyAdmin/4.0.10.15/phpMyAdmin-4.0.10.15-all-languages.zip --no-check-certificate
-unzip phpMyAdmin-4.0.10.15-all-languages.zip
+unzip -q phpMyAdmin-4.0.10.15-all-languages.zip
 mv ./phpMyAdmin-4.0.10.15-all-languages ./phpmyadmin
 rm ./phpMyAdmin-4.0.10.15-all-languages.zip
 
