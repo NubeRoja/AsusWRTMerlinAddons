@@ -58,7 +58,7 @@ fi
 
 opkg install nginx && echo -e "${INFO}Nginx installed Ok, configuring..."
 mv "/opt/etc/nginx.conf" "/opt/etc/nginx.conf-opkg"
-getgithubraw "/entware-ng/LEMP-config/nginx.conf" "/opt/etc/nginx.conf" 600
+getgithubraw "/entware-ng/LEMP-config/nginx.conf" "/opt/etc/nginx/nginx.conf" 600
 mkdir -p "/opt/etc/nginx/sites-available"
 mkdir -p "/opt/etc/nginx/sites-enabled"
 getgithubraw "/entware-ng/LEMP-config/default" "/opt/etc/nginx/sites-available/default" 600
@@ -94,7 +94,7 @@ mv /opt/share/nginx/html/* $wwwdir
 rm -r /opt/share/nginx
 
 cd $wwwdir
-https://files.phpmyadmin.net/phpMyAdmin/4.0.10.20/phpMyAdmin-4.0.10.20-all-languages.zip --no-check-certificate
+wget https://files.phpmyadmin.net/phpMyAdmin/4.0.10.20/phpMyAdmin-4.0.10.20-all-languages.zip --no-check-certificate
 unzip -q phpMyAdmin-4.0.10.20-all-languages.zip
 mv ./phpMyAdmin-4.0.10.20-all-languages ./phpmyadmin
 rm ./phpMyAdmin-4.0.10.20-all-languages.zip
