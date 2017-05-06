@@ -7,7 +7,7 @@ INPUT="${BOLD}=> $NORM"
 getgithubraw () {
 	[ -f "$1" ] && mv "$1" "$1-opkg"
 	wget -O "$1" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng$1"
-	[ ! -z $3 ] && chmod "$2" "$1"
+	[ ! -z $2 ] && chmod "$2" "$1"
 }
 
 clear
