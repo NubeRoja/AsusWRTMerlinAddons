@@ -6,7 +6,7 @@ WARNING="${BOLD}* Warning: $NORM"
 INPUT="${BOLD}=> $NORM"
 getgithubraw () {
 	[ -f "$1" ] && mv "$1" "$1-opkg"
-	wget -O "$2" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng$1"
+	wget -O "$1" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng$1"
 	[ ! -z $3 ] && chmod "$2" "$1"
 }
 
