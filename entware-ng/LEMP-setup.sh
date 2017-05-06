@@ -4,11 +4,10 @@ NORM="\033[0m"
 INFO="${BOLD}Info: $NORM"
 WARNING="${BOLD}* Warning: $NORM"
 INPUT="${BOLD}=> $NORM"
-
 getgithubraw () {
-	[ -f "$2" ] && mv "$2" "$2-opkg"
-	wget -O "$2" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master$1"
-	[ ! -z $3 ] && chmod "$3" "$2"
+	[ -f "$1" ] && mv "$1" "$1-opkg"
+	wget -O "$2" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng$1"
+	[ ! -z $3 ] && chmod "$2" "$1"
 }
 
 clear
@@ -57,28 +56,29 @@ if $mysqlINST; then
 fi
 
 opkg install nginx && echo -e "${INFO}Nginx installed Ok, configuring..."
-mv "/opt/etc/nginx.conf" "/opt/etc/nginx.conf-opkg"
-getgithubraw "/entware-ng/LEMP-config/nginx.conf" "/opt/etc/nginx/nginx.conf" 600
+mv "/opt/etc/nginx/nginx.conf" "/opt/etc/nginx/nginx.conf-opkg"
+getgithubraw "/opt/etc/nginx/nginx.conf" 600
 mkdir -p "/opt/etc/nginx/sites-available"
 mkdir -p "/opt/etc/nginx/sites-enabled"
-getgithubraw "/entware-ng/LEMP-config/default" "/opt/etc/nginx/sites-available/default" 600
+getgithubraw "/opt/etc/nginx/sites-available/default" 600
 cd /opt/etc/nginx/sites-enabled
 ln -sf ../sites-available/default default
-getgithubraw "/entware-ng/LEMP-config/S80nginx" "/opt/etc/init.d/S80nginx" 700
+getgithubraw "/opt/etc/init.d/S80nginx" 700
 [ -f /opt/etc/init.d/S80nginx-opkg ] && chmod 600 /opt/etc/init.d/S80nginx-opkg
 
 opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
 mv "/opt/etc/php.ini" "/opt/etc/php.ini-opkg"
-getgithubraw "/entware-ng/LEMP-config/php.ini" "/opt/etc/php.ini" 600
+getgithubraw "/opt/etc/php.ini" 600
 mkdir -p /opt/tmp/php
 chmod 755 /opt/tmp/php
-getgithubraw "/entware-ng/LEMP-config/www.conf" "/opt/etc/php5-fpm.d/www.conf" 600
+cp -r "/opt/etc/php5-fpm.d/" "/opt/etc/php5-fpm.d-opkg/"
+getgithubraw "/opt/etc/php5-fpm.d/www.conf" 600
 
 mkdir -p /opt/tmp/mysql
 chown -R nobody /opt/tmp/mysql
 opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
 mv "/opt/etc/my.cnf" "/opt/etc/my.cnf-opkg"
-getgithubraw "/entware-ng/LEMP-config/my.cnf" "/opt/etc/my.cnf" 600
+getgithubraw "/opt/etc/my.cnf" 600
 opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
 mysql_install_db --force
 
