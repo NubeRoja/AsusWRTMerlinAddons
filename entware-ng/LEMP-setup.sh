@@ -70,12 +70,10 @@ opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
 mv "/opt/etc/php.ini" "/opt/etc/php.ini-opkg"
 getgithubraw "/opt/etc/php.ini" 600
 mkdir -p /opt/tmp/php
-chmod 755 /opt/tmp/php
 cp -r "/opt/etc/php5-fpm.d/" "/opt/etc/php5-fpm.d-opkg/"
 getgithubraw "/opt/etc/php5-fpm.d/www.conf" 600
 
 mkdir -p /opt/tmp/mysql
-chown -R nobody /opt/tmp/mysql
 opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
 mv "/opt/etc/my.cnf" "/opt/etc/my.cnf-opkg"
 getgithubraw "/opt/etc/my.cnf" 600
