@@ -88,8 +88,7 @@ phpinfo();
 ?>
 EOF
 
-mv /opt/share/nginx/html/* $wwwdir
-rm -r /opt/share/nginx
+[ -d /opt/share/nginx/html/] && mv /opt/share/nginx/html/* $wwwdir && rm -r /opt/share/nginx
 
 cd $wwwdir
 wget https://files.phpmyadmin.net/phpMyAdmin/4.0.10.20/phpMyAdmin-4.0.10.20-all-languages.zip --no-check-certificate
