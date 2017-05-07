@@ -10,7 +10,10 @@ The script will install the packages required, backup original opkg config files
 * Entware-ng: https://www.hqt.ro/how-to-install-new-generation-entware/
 
 ## Scripts
-### LEMP-setup will install nginx, php5-fpm and mysql-server.
+### LEMP-setup
+From wikipedia:
+LEMP is an archetypal model of web service stacks, named as an acronym of the names of its original four open-source components: the Linux operating system, the Apache HTTP Server, the MySQL relational database management system (RDBMS), and the PHP programming language. The LAMP components are largely interchangeable and not limited to the original selection. As a solution stack, LAMP is suitable for building dynamic web sites and web applications.
+This script will install nginx, php5-fpm and mysql-server.
 Modified config and custom files are: 
 * /opt/etc/nginx/nginx.conf. Backup original at /opt/etc/nginx/nginx.conf-opkg
 * /opt/etc/nginx/sites-available/default
@@ -22,4 +25,4 @@ Modified config and custom files are:
 If you like it but want to change some options in config files:
 * Fork it
 * Change /opt config files
-* Edit github url source in setup scripts for download your modified configs, this source is hardcoded in getgithubraw fuction, i.e. raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng
+* Edit github url source in setup scripts for download your modified configs, this source is hardcoded in getgithubraw fuction, i.e. https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng
