@@ -1,0 +1,36 @@
+# Domoticz
+server {
+	listen 80;
+	server_name domoticz.calambre.local www.domoticz.calambre.local;
+	location / {
+		proxy_pass http://192.168.1.100:8080;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
+# OpenMediaVault
+server{
+	listen 80;
+	server_name mediavault.calambre.local www.mediavault.calambre.local;
+	location / {
+		proxy_pass http://192.168.1.40:8181;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
+# Webcams
+server {
+	listen 80;
+	server_name webcam.calambre.local www.webcam.calambre.local;
+	location /salon {
+		proxy_pass http://192.168.1.90:80/video/mjpg.cgi;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
