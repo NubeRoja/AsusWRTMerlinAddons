@@ -41,7 +41,7 @@ Modified config and custom files are:
 
 Uses that I give:
 Kodi database synchronized across all my players
-Proxy server of webcams, printers, etc. You need a dns server configured with your domain, teh easy way is to make a A host with * pointing to your router. http://ip:port will be thhp://service.yourdomain.local
+Proxy server of webcams, printers, etc. You need a dns server configured with your domain, teh easy way is to make a A host with * pointing to your router. http://ip:port will be http://service.yourdomain.local
 
 ## Tips and tricks
 You can execute diff in modified config files to view what is changed, i.e. diff /opt/etc/php.ini /opt/etc/php.ini-opkg
