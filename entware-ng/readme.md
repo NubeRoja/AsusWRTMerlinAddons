@@ -10,7 +10,11 @@ Although these files are mostly for my own personal use, in case any of them are
 * Special thanks to TeHashX and his excellent site https://www.hqt.ro/
 
 ## Installation
-Download script to your device and execute it. The script will:
+Download raw script to your device, make it executable and execute it. i.e.
+
+cd /tmp && wget https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng/LEMP-setup.sh && chmod +x LEMP-setup.sh && ./LEMP-setup.sh
+
+The script will:
 * Install the entware-ng packages required.
 * Backup original opkg config files that will be modified by the script
 * Donwload modified files from the /opt dir
