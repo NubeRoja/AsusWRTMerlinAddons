@@ -26,13 +26,17 @@ LAMP is an archetypal model of web service stacks, named as an acronym of the na
 
 The LAMP components are largely interchangeable and not limited to the original selection. As a solution stack, LAMP is suitable for building dynamic web sites and web applications. In this case Apache http server is substituted with nginx "enginex" and therefore LAMP becomes LEMP
 
-This script will install nginx, php5-fpm and mysql-server and phpmyadmin site.
+This script will install nginx, php5-fpm and mysql-server and phpmyadmin. I use it 
 Modified config and custom files are: 
 * /opt/etc/nginx/nginx.conf. Backup original at /opt/etc/nginx/nginx.conf-opkg
 * /opt/etc/nginx/sites-available/default
 * /opt/etc/php5-fpm.d/www.conf. Backup original at /opt/etc/php5-fpm.d-opkg/www.conf
 * /opt/etc/php.ini. Backup original at /opt/etc/php.ini-opkg
 * /opt/etc/my.cnf. Backup original at /opt/etc/php.ini-opkg
+
+Uses that I give:
+Kodi database synchronized across all my players
+Proxy server of webcams, printers, etc. You need a dns server configured with your domain 
 
 ## Tips and tricks
 You can execute diff in modified config files to view what is changed, i.e. diff /opt/etc/php.ini /opt/etc/php.ini-opkg
