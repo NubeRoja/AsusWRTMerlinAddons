@@ -27,8 +27,9 @@ Modified config and custom files are:
 * /opt/etc/my.cnf. Backup original at /opt/etc/php.ini-opkg
 
 ## Tips and tricks
+You can execute diff in modified config files to view what are changed, i.e. diff /opt/etc/php.ini /opt/etc/php.ini-opkg
+
 If you like it but want to change some options in config files:
 * Fork it
 * Change /opt config files
 * Edit github url source in setup scripts for download your modified configs, this source is hardcoded in getgithubraw fuction, i.e. https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng
-You can execute diff in modified config files to view what are changed, i.e. diff /opt/etc/php.ini /opt/etc/php.ini-opkg
