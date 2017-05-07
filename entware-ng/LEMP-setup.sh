@@ -128,6 +128,7 @@ opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
 [ $mysqllocal ] && sed -i 's/0.0.0.0/127.0.0.1/g' "/opt/etc/my.cnf"	
 
 mysql_install_db --force
+mysqladmin password $mysqlpassword
 
 mkdir -p $wwwdir
 cd $wwwdir
