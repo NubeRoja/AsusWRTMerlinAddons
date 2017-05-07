@@ -20,13 +20,13 @@ The script will:
 ## Scripts
 ### LEMP-setup
 From wikipedia:
-LAMP is an archetypal model of web service stacks, named as an acronym of the names of its original four open-source components:
+<i>LAMP is an archetypal model of web service stacks, named as an acronym of the names of its original four open-source components:
 * The Linux operating system
 * The Apache HTTP Server
 * The MySQL relational database management system (RDBMS)
 * The PHP programming language.
 
-The LAMP components are largely interchangeable and not limited to the original selection. As a solution stack, LAMP is suitable for building dynamic web sites and web applications. In this case Apache http server is substituted with nginx "enginex" and therefore LAMP becomes LEMP
+The LAMP components are largely interchangeable and not limited to the original selection. As a solution stack, LAMP is suitable for building dynamic web sites and web applications.</i> <b>In this case Apache http server is substituted with nginx "enginex" and therefore LAMP becomes LEMP</b>
 
 <code>cd /tmp && wget https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng/LEMP-setup.sh && chmod +x LEMP-setup.sh && ./LEMP-setup.sh</code>
 
