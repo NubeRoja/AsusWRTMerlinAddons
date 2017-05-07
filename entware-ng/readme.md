@@ -26,7 +26,7 @@ LAMP is an archetypal model of web service stacks, named as an acronym of the na
 
 The LAMP components are largely interchangeable and not limited to the original selection. As a solution stack, LAMP is suitable for building dynamic web sites and web applications. In this case Apache http server is substituted with nginx "enginex" and therefore LAMP becomes LEMP
 
-This script will install nginx, php5-fpm and mysql-server.
+This script will install nginx, php5-fpm and mysql-server and phpmyadmin site.
 Modified config and custom files are: 
 * /opt/etc/nginx/nginx.conf. Backup original at /opt/etc/nginx/nginx.conf-opkg
 * /opt/etc/nginx/sites-available/default
