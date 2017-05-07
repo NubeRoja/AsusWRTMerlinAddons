@@ -7,7 +7,7 @@ INPUT="${BOLD}=> $NORM"
 getgithubraw () {
 	[ -f "$1" ] && mv "$1" "$1-opkg"
 	wget -O "$1" "https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng$1"
-	[ ! -z $2 ] && chmod "$2" "$1"
+	[ ! -z "$2" ] && chmod "$2" "$1"
 }
 
 clear
@@ -25,9 +25,39 @@ echo -e "${INFO}and mysql-server the database engine."
 echo -e "${INFO}Additionally phpMyAdmin will be installed in www.yourdomain.com/phpmyadmin"
 echo -e "${INFO}If nginx, php, php5-fpm and mysql-server are already installed,"
 echo -e "${INFO}the script will copy old config files to 'name'-PRELEMP"
+sleep 2
+echo
 echo -en "${INPUT} Where do you want to install web server archives? [/opt/share/www] "
 read wwwdir
-if [ -z "$wwwdir" ]; then wwwdir="/opt/share/www"; fi
+echo -en "${INPUT} What is your domain name? [calambre.local] "
+read domainname
+while :
+do
+	echo -en "${INPUT} Need MySQL Server be available accross your lan? (y/n) "
+	read yesno
+	case $yesno in
+		y|Y)
+			mysqllocal=false
+			break
+			;;
+		n|N)
+			mysqllocal=true
+			break
+			;;
+		*)
+			echo "type only y/n"
+			;;
+	esac		
+done
+while :
+do
+	echo -en "${INPUT} Type password for MySQL root user: "
+	read mysqlpassword
+	echo -en "${INPUT} Retype password: "
+	read remysqlpassword
+	[ "$mysqlpassword" = "$remysqlpassword" ] && break || echo -e "${WARNING}Password missmacth"
+done
+
 nginxINST=$(opkg list-installed | awk '{print $1}' | grep -q "nginx" && echo true || echo false)
 phpINSTt=$(opkg list-installed | awk '{print $1}' | grep -q "php5" && echo true || echo false)
 phpfpmINST=$(opkg list-installed | awk '{print $1}' | grep -q "php5-fpm" && echo true || echo false)
@@ -61,23 +91,42 @@ getgithubraw "/opt/etc/nginx/nginx.conf" 600
 mkdir -p "/opt/etc/nginx/sites-available"
 mkdir -p "/opt/etc/nginx/sites-enabled"
 getgithubraw "/opt/etc/nginx/sites-available/default" 600
+getgithubraw "/opt/etc/nginx/sites-available/proxypass" 600
+
+if [ ! -z "$domainname" ]; then
+	sed -i "s/calambre.local/$domainname/g" "/opt/etc/nginx/sites-available/default"
+	sed -i "s/calambre.local/$domainname/g" "/opt/etc/nginx/sites-available/proxypass"
+fi
+
 cd /opt/etc/nginx/sites-enabled
 ln -sf ../sites-available/default default
+ln -sf ../sites-available/proxypass
+mv "/opt/etc/init.d/S80nginx" "/opt/etc/init.d/S80nginx-opkg" && chmod 600 /opt/etc/init.d/S80nginx-opkg
 getgithubraw "/opt/etc/init.d/S80nginx" 700
-[ -f /opt/etc/init.d/S80nginx-opkg ] && chmod 600 /opt/etc/init.d/S80nginx-opkg
 
 opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
 mv "/opt/etc/php.ini" "/opt/etc/php.ini-opkg"
 getgithubraw "/opt/etc/php.ini" 600
 mkdir -p /opt/tmp/php
+chmod 777 /opt/tmp/php
 cp -r "/opt/etc/php5-fpm.d/" "/opt/etc/php5-fpm.d-opkg/"
 getgithubraw "/opt/etc/php5-fpm.d/www.conf" 600
+
+if [ ! -z "$wwwdir" ]; then
+	sed -i "s,/opt/share/www,$wwwdir,g" "/opt/etc/nginx/sites-available/default"
+	sed -i "s,/opt/share/www,$wwwdir,g" "/opt/etc/php.ini"
+else
+	wwwdir=/opt/share/www
+fi
 
 mkdir -p /opt/tmp/mysql
 opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
 mv "/opt/etc/my.cnf" "/opt/etc/my.cnf-opkg"
 getgithubraw "/opt/etc/my.cnf" 600
 opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
+
+[ $mysqllocal ] && sed -i 's/0.0.0.0/127.0.0.1/g' "/opt/etc/my.cnf"	
+
 mysql_install_db --force
 
 mkdir -p $wwwdir
@@ -88,7 +137,7 @@ phpinfo();
 ?>
 EOF
 
-[ -d /opt/share/nginx/html/] && mv /opt/share/nginx/html/* $wwwdir && rm -r /opt/share/nginx
+[ -d /opt/share/nginx/html/ ] && mv /opt/share/nginx/html/* $wwwdir && rm -r /opt/share/nginx
 
 cd $wwwdir
 wget https://files.phpmyadmin.net/phpMyAdmin/4.0.10.20/phpMyAdmin-4.0.10.20-all-languages.zip --no-check-certificate
