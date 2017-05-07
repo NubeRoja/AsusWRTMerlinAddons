@@ -64,32 +64,44 @@ phpfpmINST=$(opkg list-installed | awk '{print $1}' | grep -q "php5-fpm" && echo
 mysqlINST=$(opkg list-installed | awk '{print $1}' | grep -q "mysql-server" && echo true || echo false)
 
 if $nginxINST; then
-	echo -e "${WARNING}Nginx already installed, saving '/opt/etc/nginx/nginx.conf-PRELEMP' & '/opt/etc/nginx/sites-available-PRELEMP'"
-	[ -f /opt/etc/nginx/nginx.conf ] && cp /opt/etc/nginx/nginx.conf /opt/etc/nginx/nginx.conf-PRELEMP
-	[ -d /opt/etc/nginx/sites-available ] && mv /opt/etc/nginx/sites-available /opt/etc/nginx/sites-available-PRELEMP
+	echo -e "${WARNING}Nginx already installed, 'sites-enabled' will be erased"
 	[ -d /opt/etc/nginx/sites-enabled ] && rm -r /opt/etc/nginx/sites-enabled
+	if [ $(md5sum /opt/etc/nginx/nginx.conf  | awk '{print $1}') = "78aef7acee5ac134f0964979c6253905" ]; then
+		echo -e "${INFO}Saving modified conffile '/opt/etc/nginx/nginx.conf-PRELEMP'"
+		cp /opt/etc/nginx/nginx.conf /opt/etc/nginx/nginx.conf-PRELEMP
+	fi
 fi
 
 if $phpfpmINST; then
-	echo -e "${WARNING}php5-fpm already installed, saving '/opt/etc/php5-fpm.d-PRELEMP/'"
-	[ -f /opt/etc/php5-fpm.d/www.conf ] && mv /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d-PRELEMP/ && mkdir -p /opt/etc/php5-fpm.d/
+	echo -e "${WARNING}php5-fpm already installed, saving '/opt/etc/php5-fpm.d/' 'files to /opt/etc/php5-fpm.d-PRELEMP/'"
+	if [ $(md5sum md5sum /opt/etc/php5-fpm.d/www.conf  | awk '{print $1}') != "574b6477d34de1a4a926a6a3fb681cbc" ]; then
+		echo -e "${INFO}Saving modified conffile '/opt/etc/php5-fpm.d-PRELEMP/'"
+		mkdir -p /opt/etc/php5-fpm.d-PRELEMP/ && cp /opt/etc/php5-fpm.d/www.conf /opt/etc/php5-fpm.d-PRELEMP/www.conf
+	fi
+	[ -d /opt/etc/php5-fpm.d/ ] && 
 fi
 
 if $phpINSTt; then
-	echo -e "${WARNING}php5 already installed, saving '/opt/etc/php.ini-PRELEMP'"
-	[ -f /opt/etc/php.ini ] && cp /opt/etc/php.ini /opt/etc/php.ini-PRELEMP
+	echo -e "${WARNING}Php5 already installed"
+	if [ $(md5sum /opt/etc/php.ini  | awk '{print $1}') != "a0c941ee1154a8e10b1fa76758643d29" ]; then
+		echo -e "${INFO}Saving modified conffile '/opt/etc/php.ini-PRELEMP'"
+		cp /opt/etc/php.ini /opt/etc/php.ini-PRELEMP
+	fi
 fi
 
 if $mysqlINST; then
 	echo -e "${WARNING}MySQL Server already installed, saving '/opt/etc/my.cnf-PRELEMP'"
-	[ -f /opt/etc/my.cnf ] && cp /opt/etc/my.cnf /opt/etc/my.cnf-PRELEMP
+	if [ $(md5sum /opt/etc/my.cnf  | awk '{print $1}') != "de13cdfc2bcc43a2d6f154fef88eca3a" ]; then
+		echo -e "${INFO}Saving modified conffile '/opt/etc/my.cnf-PRELEMP'"
+		cp /opt/etc/my.cnf /opt/etc/my.cnf-PRELEMP
+	fi
 fi
 
-opkg install nginx && echo -e "${INFO}Nginx installed Ok, configuring..."
-mv "/opt/etc/nginx/nginx.conf" "/opt/etc/nginx/nginx.conf-opkg"
+opkg install nginx --force-reinstall --forcemaintainer && echo -e "${INFO}Nginx installed Ok, configuring..."
+mv /opt/etc/nginx/nginx.conf /opt/etc/nginx/nginx.conf-opkg
 getgithubraw "/opt/etc/nginx/nginx.conf" 600
-mkdir -p "/opt/etc/nginx/sites-available"
-mkdir -p "/opt/etc/nginx/sites-enabled"
+mkdir -p /opt/etc/nginx/sites-available
+mkdir -p /opt/etc/nginx/sites-enabled
 getgithubraw "/opt/etc/nginx/sites-available/default" 600
 getgithubraw "/opt/etc/nginx/sites-available/proxypass" 600
 
@@ -101,15 +113,15 @@ fi
 cd /opt/etc/nginx/sites-enabled
 ln -sf ../sites-available/default default
 ln -sf ../sites-available/proxypass
-mv "/opt/etc/init.d/S80nginx" "/opt/etc/init.d/S80nginx-opkg" && chmod 600 /opt/etc/init.d/S80nginx-opkg
+mv /opt/etc/init.d/S80nginx /opt/etc/init.d/S80nginx-opkg && chmod 600 /opt/etc/init.d/S80nginx-opkg
 getgithubraw "/opt/etc/init.d/S80nginx" 700
 
-opkg install php5-fpm && echo -e "${INFO}php5-fpm installed Ok, configuring..."
-mv "/opt/etc/php.ini" "/opt/etc/php.ini-opkg"
+opkg install php5-fpm --force-reinstall --forcemaintainer && echo -e "${INFO}php5-fpm installed Ok, configuring..."
+mv /opt/etc/php.ini /opt/etc/php.ini-opkg
 getgithubraw "/opt/etc/php.ini" 600
 mkdir -p /opt/tmp/php
 chmod 777 /opt/tmp/php
-cp -r "/opt/etc/php5-fpm.d/" "/opt/etc/php5-fpm.d-opkg/"
+cp -r /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d-opkg/
 getgithubraw "/opt/etc/php5-fpm.d/www.conf" 600
 
 if [ ! -z "$wwwdir" ]; then
@@ -120,10 +132,10 @@ else
 fi
 
 mkdir -p /opt/tmp/mysql
-opkg install mysql-server && echo -e "${INFO}mysql-server installed Ok, configuring..."
+opkg install mysql-server --force-reinstall --forcemaintainer && echo -e "${INFO}mysql-server installed Ok, configuring..."
 mv "/opt/etc/my.cnf" "/opt/etc/my.cnf-opkg"
 getgithubraw "/opt/etc/my.cnf" 600
-opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json
+opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json  --force-reinstall --forcemaintainer
 
 [ $mysqllocal ] && sed -i 's/0.0.0.0/127.0.0.1/g' "/opt/etc/my.cnf"	
 
