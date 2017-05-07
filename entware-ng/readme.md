@@ -1,13 +1,16 @@
-# Entware-ng installation scrtips
+# Entware-ng installation scripts
 Scripts and config-files for Asuswrt-Merlin & entware-ng.
 
 Although these files are mostly for my own personal use, in case any of them are of interest for other users please feel free to take what you need. Feedback is also welcome.
 
-## Installation
-Download script to your device and execute it.
-The script will install the packages required, backup original opkg config files that will be modified by the script and donwload modified files from the /opt dir
 * Asus WRT-Merlin:  http://asuswrt.lostrealm.ca/
 * Entware-ng: https://www.hqt.ro/how-to-install-new-generation-entware/
+
+## Installation
+Download script to your device and execute it. The script will:
+* Install the entware-ng packages required.
+* Backup original opkg config files that will be modified by the script
+* Donwload modified files from the /opt dir
 
 ## Scripts
 ### LEMP-setup
@@ -28,3 +31,4 @@ If you like it but want to change some options in config files:
 * Fork it
 * Change /opt config files
 * Edit github url source in setup scripts for download your modified configs, this source is hardcoded in getgithubraw fuction, i.e. https://raw.githubusercontent.com/NubeRoja/AsusWRTMerlinAddons/master/entware-ng
+You can execute diff in modified config files to view what are changed, i.e. diff /opt/etc/php.ini /opt/etc/php.ini-opkg
