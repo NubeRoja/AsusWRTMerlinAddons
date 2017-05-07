@@ -15,7 +15,12 @@ Download script to your device and execute it. The script will:
 ## Scripts
 ### LEMP-setup
 From wikipedia:
-LEMP is an archetypal model of web service stacks, named as an acronym of the names of its original four open-source components: the Linux operating system, the Apache HTTP Server, the MySQL relational database management system (RDBMS), and the PHP programming language. The LAMP components are largely interchangeable and not limited to the original selection. As a solution stack, LAMP is suitable for building dynamic web sites and web applications.
+LAMP is an archetypal model of web service stacks, named as an acronym of the names of its original four open-source components:
+* The Linux operating system
+* The Apache HTTP Server
+* The MySQL relational database management system (RDBMS)
+* The PHP programming language.
+The LAMP components are largely interchangeable and not limited to the original selection. As a solution stack, LAMP is suitable for building dynamic web sites and web applications. In this case Apache http server is substituted with nginx "enginex" and therefore LAMP becomes LEMP
 
 This script will install nginx, php5-fpm and mysql-server.
 
