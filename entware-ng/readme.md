@@ -1,10 +1,13 @@
 # Entware-ng installation scripts
-Scripts and config-files for Asuswrt-Merlin & entware-ng.
+Scripts and config-files for Asuswrt-Merlin & entware-ng. 
+
+This site was created to help me with a quick and clean installation of the software that I currently run on my asus RT-AC56U router. My knowledge of linux is limited and I also have bad memory, so installing software on my router and making it work properly takes me too long to find information available in forums, tutorials, etc. and testing on my router.
 
 Although these files are mostly for my own personal use, in case any of them are of interest for other users please feel free to take what you need. Feedback is also welcome.
 
 * Asus WRT-Merlin:  http://asuswrt.lostrealm.ca/
 * Entware-ng: https://www.hqt.ro/how-to-install-new-generation-entware/
+* Special thanks to TeHashX and his excellent site https://www.hqt.ro/
 
 ## Installation
 Download script to your device and execute it. The script will:
@@ -32,7 +35,7 @@ Modified config and custom files are:
 * /opt/etc/my.cnf. Backup original at /opt/etc/php.ini-opkg
 
 ## Tips and tricks
-You can execute diff in modified config files to view what are changed, i.e. diff /opt/etc/php.ini /opt/etc/php.ini-opkg
+You can execute diff in modified config files to view what is changed, i.e. diff /opt/etc/php.ini /opt/etc/php.ini-opkg
 
 If you like it but want to change some options in config files:
 * Fork it
