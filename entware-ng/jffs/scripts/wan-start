@@ -1,0 +1,6 @@
+#!/bin/sh
+while [ $(nvram get ntp_ready) != "1" ]; do
+	sleep 1
+	logger -t "$(basename $0) $*" "Waiting NTP Server initialised!"
+done
+/jffs/bin/ntpd -c /jffs/etc/ntp.conf && logger -t "$(basename $0) $*" "NTP Server initialised!"
