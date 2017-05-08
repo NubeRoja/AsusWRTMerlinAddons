@@ -1,0 +1,14 @@
+/opt/var/log/php5-fpm.log {
+        weekly
+	size 100k
+        missingok
+        rotate 4
+        compress
+        delaycompress
+        notifempty
+        create 600 admin root
+        sharedscripts
+        postrotate
+                [ -f /opt/var/run/php5-fpm.pid ] && /opt/etc/init.d/S79php-fpm reopen > /dev/null
+        endscript
+}
