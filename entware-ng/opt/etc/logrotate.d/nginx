@@ -1,0 +1,14 @@
+/opt/var/log/nginx/*.log {
+        weekly
+	size 100k
+        missingok
+        rotate 4
+        compress
+        delaycompress
+        notifempty
+        create 644 admin root
+        sharedscripts
+        postrotate
+                [ -f /opt/var/run/nginx.pid ] && /opt/etc/init.d/S80nginx reopen > /dev/null
+        endscript
+}
