@@ -1,0 +1,32 @@
+#!/bin/sh
+ansi_red="\033[1;31m";
+ansi_white="\033[1;37m";
+ansi_green="\033[1;32m";
+ansi_std="\033[m";
+ENABLED=yes
+PROCS=php-fpm
+PREARGS=""
+DESC=$PROCS
+PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+case $1 in
+        start | stop | restart | check | kill | reconfigure)
+                ARGS="--daemonize --fpm-config /opt/etc/php5-fpm.conf"
+                . /opt/etc/init.d/rc.func
+                ;;
+        reload)
+                ARGS="--daemonize --fpm-config /opt/etc/php5-fpm.conf"
+                . /opt/etc/init.d/rc.func reconfigure
+                ;;
+        reopen)
+                echo -e -n "$ansi_white Reopening $PROCS log files...  "
+                if [ -f /var/run/php5-fpm.pid ]; then
+                         kill -USR1 `cat /opt/var/run/php5-fpm.pid` && echo -e "$ansi_green done."
+                else
+                        echo -e "$ansi_red failed.$ansi_std"
+                fi
+                ;;
+        *)
+                echo -e "$ansi_white Usage: $0 (start|stop|restart|check|kill|reconfigure|reload|reopen)$ansi_std"
+                ;;
+esac
