@@ -143,7 +143,7 @@ getgithubraw "/opt/etc/my.cnf" 600
 opkg install php5-mod-mysqli php5-mod-session php5-mod-mbstring php5-mod-json  --force-reinstall --forcemaintainer
 
 [ $mysqllocal ] && sed -i 's/0.0.0.0/127.0.0.1/g' "/opt/etc/my.cnf"	
-
+[ ! -z $ddbbdir ] && sed -iE "s,datadir[[:space:]]+= /opt/var/lib/mysql/,s,datadir		= $ddbbdir,g" "/opt/etc/my.cnf"
 mysql_install_db --force
 mysqladmin password $mysqlpassword
 
