@@ -1,0 +1,12 @@
+#!/bin/sh
+# /jffs/scripts/unmount
+# first argument is the partition to be unmounted (e.g. /tmp/mnt/usbdisklabel/)
+# If partition is the entware volume
+#       Stop entware services
+#       Unmount swap file if exists
+OPT=$(dirname "$(readlink /tmp/opt)")
+TAG="$(basename "$0") $*"
+if [ "$1" = "$OPT" ]; then
+	sh /opt/etc/init.d/rc.unslung stop && logger -t "$TAG" "Running rc.unslung to stop Entware services ..."
+	[ -f /opt/swap ] && swapoff /opt/swap && logger -t "$TAG" "Unmounting swap file..."
+fi
