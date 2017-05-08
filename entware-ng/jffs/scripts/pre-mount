@@ -1,0 +1,29 @@
+#!/bin/sh
+# /jffs/scripts/pre-mount
+# first argument is the device to be mounted (e.g. /dev/sda1/)
+# Check filesystem or mount swap partition
+TAG="$(basename "$0") $*"
+FSTYPE=$(fdisk -l "${1:0:8}" | grep "$1" | cut -c55-65)
+
+case "$FSTYPE" in
+	"Linux")
+		logger -t "$TAG" "Checking $FSTYPE filesystem"
+		LOG=$(e2fsck -p "$1")
+		;;
+	"Linux swap")
+		logger -t "$TAG" "Mounting swap partition"
+		swapon "$1" && LOG="Swap partition mounted" || LOG="Device busy. Already mounted?"
+		;;
+	"HPFS/NTFS")
+		logger -t "$TAG" "Checking $FSTYPE filesystem"
+		LOG=$(ntfsck -a "$1")
+		;;
+	"Win95*|FAT*")
+		logger -t "$TAG" "Checking $FSTYPE filesystem"
+		LOG=$(fatfsck -a "$1")
+		;;
+	*)
+		LOG="Unknow filesystem type $FSTYPE on $1. No filesystem check available"
+		;;
+esac
+logger -t "$TAG" "$LOG"
