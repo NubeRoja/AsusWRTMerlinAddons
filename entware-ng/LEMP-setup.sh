@@ -49,12 +49,14 @@ do
 			;;
 	esac		
 done
+echo -en "${INPUT} Where do you want to install MySQl databases? [/opt/var/lib/mysql] "
+read ddbbdir
 while :
 do
 	echo -en "${INPUT} Type password for MySQL root user: "
-	read mysqlpassword
+	read -s mysqlpassword
 	echo -en "${INPUT} Retype password: "
-	read remysqlpassword
+	read -s remysqlpassword
 	[ "$mysqlpassword" = "$remysqlpassword" ] && break || echo -e "${WARNING}Password missmacth"
 done
 
@@ -134,6 +136,7 @@ else
 fi
 
 mkdir -p /opt/tmp/mysql
+mkdir -p /opt/var/lib/mysql
 opkg install mysql-server --force-reinstall --forcemaintainer && echo -e "${INFO}mysql-server installed Ok, configuring..."
 mv "/opt/etc/my.cnf" "/opt/etc/my.cnf-opkg"
 getgithubraw "/opt/etc/my.cnf" 600
