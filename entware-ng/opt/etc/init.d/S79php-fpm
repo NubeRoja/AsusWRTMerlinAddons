@@ -20,7 +20,7 @@ case $1 in
                 ;;
         reopen)
                 echo -e -n "$ansi_white Reopening $PROCS log files...  "
-                if [ -f /var/run/php5-fpm.pid ]; then
+                if [ -f /opt/var/run/php5-fpm.pid ]; then
                          kill -USR1 `cat /opt/var/run/php5-fpm.pid` && echo -e "$ansi_green done."
                 else
                         echo -e "$ansi_red failed.$ansi_std"
