@@ -1,0 +1,2 @@
+#!/bin/sh
+cru a logrotate day /opt/sbin/logrotate /opt/etc/logrotate.conf
