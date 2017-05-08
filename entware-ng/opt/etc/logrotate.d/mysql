@@ -1,0 +1,14 @@
+/opt/var/log/mysql/*.log {
+        weekly
+	size 10k
+        missingok
+        rotate 4
+        compress
+        delaycompress
+        notifempty
+        create 660 admin root
+        sharedscripts
+        postrotate
+                [ -f /opt/var/run/mysqld.pid ] && mysqladmin flush-logs
+        endscript
+}
