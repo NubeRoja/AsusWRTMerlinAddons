@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "/jffs/var/www/device-map		/www/device-map		none		bind		0		0" >> /etc/fstab
+mount -a
