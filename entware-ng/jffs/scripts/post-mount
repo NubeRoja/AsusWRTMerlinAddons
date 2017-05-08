@@ -1,0 +1,15 @@
+#!/bin/sh
+# /jffs/scripts/post-mount
+# first argument is the partition mounted (e.g. /tmp/mnt/usbdisklabel/)
+# If partition is the entware volume
+#	Create /opt symlink
+#	Mount swap file if exists
+#	Start Entware services
+TAG="$(basename "$0") $*"
+
+if [ "$1" = "/tmp/mnt/ultra" ]; then
+	ln -nsf "$1"/entware-ng.arm /tmp/opt && logger -t "$TAG" "Created entware-ng symlink"
+	[ -f /opt/swap ] && swapon /opt/swap && logger -t "$TAG" "Mounted swap file..."
+	logger -t "$TAG" "Running rc.unslung to start Entware services ..."
+	/opt/etc/init.d/rc.unslung start
+fi
