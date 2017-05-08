@@ -123,6 +123,8 @@ mkdir -p /opt/tmp/php
 chmod 777 /opt/tmp/php
 cp -r /opt/etc/php5-fpm.d/ /opt/etc/php5-fpm.d-opkg/
 getgithubraw "/opt/etc/php5-fpm.d/www.conf" 600
+mv /opt/etc/init.d/S79php-fpm /opt/etc/init.d/S79php-fpm && chmod 600 /opt/etc/init.d/S79php-fpm-opkg
+getgithubraw "/opt/etc/init.d/S79php-fpm" 700
 
 if [ ! -z "$wwwdir" ]; then
 	sed -i "s,/opt/share/www,$wwwdir,g" "/opt/etc/nginx/sites-available/default"
