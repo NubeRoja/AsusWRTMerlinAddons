@@ -1,3 +1,20 @@
 #!/bin/sh
-ln -sf /tmp/home/root/.my.cnf /jffs/home/root/.my.cnf
-cru a logrotate day /opt/sbin/logrotate /opt/etc/logrotate.conf
+TAG="$(basename "$0") $*"
+while [ ! -d /etc/ ]; do
+	sleep 1
+	logger -t "$TAG" "Waiting for filesystem"
+done
+cat > /etc/ntp.conf << EOF
+
+server 1.es.pool.ntp.org
+server 3.europe.pool.ntp.org
+server 2.europe.pool.ntp.org
+EOF
+ntpd -l && logger -t "$TAG" "NTP Server Initialised"
+
+while [ ! -d /tmp/home/root/ ]; do
+	sleep 1
+	logger -t "$TAG" "Waiting for tmp filesystem"
+done
+ln -sf /jffs/home/root/.my.cnf /tmp/home/root/.my.cnf
+cru a logrotate "0 5 * * * /opt/sbin/logrotate /opt/etc/logrotate.conf"  && logger -t "$TAG" "Logrotate Initialised"
