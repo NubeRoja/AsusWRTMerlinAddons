@@ -79,6 +79,14 @@ done
 opkg install logrotate
 [ nginxrotate ] && getgithubraw "/opt/etc/logrotate.d/nginx" 644
 [ php5fpmrotate ] && getgithubraw "/opt/etc/logrotate.d/php5-fpm" 644
-[ mysqlrotate ] && getgithubraw "/opt/etc/logrotate.d/mysql" 644
-getgithubraw "/jffs/scripts/init-start" 755
+[ mysqlrotate ] && getgithubraw "/opt/etc/logrotate.d/mysql" 644 && getgithubraw "/jffs/home/root/.my.cnf" 600
+if [ ! -f /jffs/scripts/services-start ]; then
+	echo "#!/bin/sh/" > "/jffs/scripts/services-start"
+	echo "TAG=\"\$(basename \"\$0\") \$*\"" >> "/jffs/scripts/services-start"
+	chmod 755 "/jffs/scripts/services-start"
+fi
+echo "ln -sf /jffs/home/root/.my.cnf /tmp/home/root/.my.cnf" >> "/jffs/scripts/services-start"
+echo "cru a logrotate \"0 5 * * * /opt/sbin/logrotate /opt/etc/logrotate.conf\"" >> "/jffs/scripts/services-start"
+echo "logger -t \"\$TAG\" \"Created Logrotate cron job\"" >> "/jffs/scripts/services-start"
+
 
