@@ -76,16 +76,16 @@ fi
 
 if $phpfpmINST; then
 	echo -e "${WARNING}php7-fpm already installed, saving '/opt/etc/php7-fpm.d/' 'files to /opt/etc/php7-fpm.d-PRELEMP/'"
-	if [ $(md5sum md5sum /opt/etc/php7-fpm.d/www.conf  | awk '{print $1}') != "574b6477d34de1a4a926a6a3fb681cbc" ]; then
+	if [ $(md5sum /opt/etc/php7-fpm.d/www.conf  | awk '{print $1}') != "6f3c614aa969034320b37150d04980a0" ]; then
 		echo -e "${INFO}Saving modified conffile '/opt/etc/php7-fpm.d-PRELEMP/'"
-		mkdir -p /opt/etc/php7-fpm.d-PRELEMP/ && cp /opt/etc/php7-fpm.d/www.conf /opt/etc/php7-fpm.d-PRELEMP/www.conf
+		mkdir -p /opt/etc/php7-fpm.d-PRELEMP/ && cp /opt/etc/php7-fpm.d/* /opt/etc/php7-fpm.d-PRELEMP/
 	fi
 	[ -d /opt/etc/php7-fpm.d/ ] && rm -r /opt/etc/php7-fpm.d
 fi
 
 if $phpINSTt; then
 	echo -e "${WARNING}Php7 already installed"
-	if [ $(md5sum /opt/etc/php.ini  | awk '{print $1}') != "a0c941ee1154a8e10b1fa76758643d29" ]; then
+	if [ $(md5sum /opt/etc/php.ini  | awk '{print $1}') != "76d25693b827cffcb6412ee230dc1515" ]; then
 		echo -e "${INFO}Saving modified conffile '/opt/etc/php.ini-PRELEMP'"
 		cp /opt/etc/php.ini /opt/etc/php.ini-PRELEMP
 	fi
