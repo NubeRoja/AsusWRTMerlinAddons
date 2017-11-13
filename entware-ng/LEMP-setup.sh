@@ -80,7 +80,7 @@ if $phpfpmINST; then
 		echo -e "${INFO}Saving modified conffile '/opt/etc/php5-fpm.d-PRELEMP/'"
 		mkdir -p /opt/etc/php5-fpm.d-PRELEMP/ && cp /opt/etc/php5-fpm.d/www.conf /opt/etc/php5-fpm.d-PRELEMP/www.conf
 	fi
-	[ -d /opt/etc/php5-fpm.d/ ] && 
+	[ -d /opt/etc/php5-fpm.d/ ] && rm -r /opt/etc/php5-fpm.d
 fi
 
 if $phpINSTt; then
