@@ -8,6 +8,8 @@ alias cd..='cd ..'
 EOF
 echo "profile.add ok"
 
+cd /jffs/
+mkdir -p etc
 cat > /jffs/etc/ntp.conf << EOF
 server 1.es.pool.ntp.org
 server 3.europe.pool.ntp.org
