@@ -11,16 +11,16 @@ PATH=/opt/sbin:/opt/bin:/opt/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/u
 
 case $1 in
         start | stop | restart | check | kill | reconfigure)
-                ARGS="--daemonize --fpm-config /opt/etc/php5-fpm.conf"
+                ARGS="--daemonize --fpm-config /opt/etc/php7-fpm.conf"
                 . /opt/etc/init.d/rc.func
                 ;;
         reload)
-                ARGS="--daemonize --fpm-config /opt/etc/php5-fpm.conf"
+                ARGS="--daemonize --fpm-config /opt/etc/php7-fpm.conf"
                 . /opt/etc/init.d/rc.func reconfigure
                 ;;
         reopen)
                 echo -e -n "$ansi_white Reopening $PROCS log files...  "
-                if [ -f /opt/var/run/php5-fpm.pid ]; then
+                if [ -f /opt/var/run/php7-fpm.pid ]; then
                          kill -USR1 `cat /opt/var/run/php5-fpm.pid` && echo -e "$ansi_green done."
                 else
                         echo -e "$ansi_red failed.$ansi_std"
